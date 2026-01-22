@@ -56,7 +56,7 @@ export default async function RepoPage({ params }: PageProps) {
   const categories = extractCategories(skills);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container-page py-8 sm:py-12">
       {/* Back link */}
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/">

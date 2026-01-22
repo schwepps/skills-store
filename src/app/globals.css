@@ -123,3 +123,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Container utilities for consistent max-width and padding */
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .container-narrow {
+    @apply mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8;
+  }
+}

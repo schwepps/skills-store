@@ -28,11 +28,13 @@ export async function generateMetadata({
     return { title: 'Skill not found' };
   }
 
+  const skillsPath = repoConfig.config?.skillsPath || '';
   const metadata = await fetchSkillMetadata(
     owner,
     repo,
     skill,
-    repoConfig.branch
+    repoConfig.branch,
+    skillsPath
   );
 
   if (!metadata) {
@@ -57,17 +59,19 @@ export default async function SkillPage({ params }: PageProps) {
   }
 
   const branch = repoConfig.branch || 'main';
-  const metadata = await fetchSkillMetadata(owner, repo, skill, branch);
+  const skillsPath = repoConfig.config?.skillsPath || '';
+  const metadata = await fetchSkillMetadata(owner, repo, skill, branch, skillsPath);
 
   if (!metadata) {
     notFound();
   }
 
-  const downloadUrl = buildDownloadUrl(owner, repo, skill, branch);
-  const githubUrl = buildGitHubUrl(owner, repo, skill, branch);
+  const fullPath = skillsPath ? `${skillsPath}/${skill}` : skill;
+  const downloadUrl = buildDownloadUrl(owner, repo, fullPath, branch);
+  const githubUrl = buildGitHubUrl(owner, repo, fullPath, branch);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="container-narrow py-8 sm:py-12">
       {/* Back link */}
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/">

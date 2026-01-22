@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="container mx-auto px-4 py-16 text-center">
+    <div className="container-page py-16 text-center">
       <div className="max-w-md mx-auto">
         <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-4" />
         <h2 className="text-2xl font-semibold mb-4">Une erreur est survenue</h2>

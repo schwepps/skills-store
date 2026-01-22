@@ -5,6 +5,7 @@ import {
   buildSkillMdUrl,
   buildGitHubUrl,
   buildDownloadUrl,
+  buildRawUrl,
 } from './urls';
 import { parseSkillFrontmatter } from '@/lib/parser/frontmatter';
 
@@ -15,14 +16,15 @@ interface GitHubContent {
 }
 
 /**
- * Fetch list of directories in a repository root
+ * Fetch list of directories in a repository path
  */
 export async function fetchRepoDirectories(
   owner: string,
   repo: string,
-  branch: string = 'main'
+  branch: string = 'main',
+  basePath: string = ''
 ): Promise<string[]> {
-  const url = buildContentsUrl(owner, repo, '', branch);
+  const url = buildContentsUrl(owner, repo, basePath, branch);
   const contents = await githubFetch<GitHubContent[]>(url);
 
   // Filter to directories only, exclude hidden and system folders
@@ -47,17 +49,19 @@ export async function fetchRepoDirectories(
 export async function fetchSkillFolders(
   owner: string,
   repo: string,
-  branch: string = 'main'
+  branch: string = 'main',
+  basePath: string = ''
 ): Promise<string[]> {
-  const directories = await fetchRepoDirectories(owner, repo, branch);
+  const directories = await fetchRepoDirectories(owner, repo, branch, basePath);
   const skillFolders: string[] = [];
 
   // Check each directory for SKILL.md
   for (const folder of directories) {
+    const fullPath = basePath ? `${basePath}/${folder}` : folder;
     const skillMdUrl = buildContentsUrl(
       owner,
       repo,
-      `${folder}/SKILL.md`,
+      `${fullPath}/SKILL.md`,
       branch
     );
     const hasSkillMd = await checkFileExists(skillMdUrl);
@@ -77,9 +81,11 @@ export async function fetchSkillMetadata(
   owner: string,
   repo: string,
   folder: string,
-  branch: string = 'main'
+  branch: string = 'main',
+  skillsPath: string = ''
 ): Promise<SkillMetadata | null> {
-  const rawUrl = buildSkillMdUrl(owner, repo, folder, branch);
+  const fullPath = skillsPath ? `${skillsPath}/${folder}` : folder;
+  const rawUrl = buildRawUrl(owner, repo, `${fullPath}/SKILL.md`, branch);
 
   try {
     const content = await fetchRawContent(rawUrl);
@@ -99,9 +105,11 @@ function buildSkill(
   branch: string,
   metadata: SkillMetadata,
   repoDisplayName: string,
+  skillsPath: string = '',
   categoryOverride?: string
 ): Skill {
   const finalCategory = categoryOverride || metadata.category;
+  const fullPath = skillsPath ? `${skillsPath}/${folder}` : folder;
 
   return {
     id: `${owner}/${repo}/${folder}`,
@@ -112,9 +120,9 @@ function buildSkill(
       ...metadata,
       category: finalCategory,
     },
-    githubUrl: buildGitHubUrl(owner, repo, folder, branch),
-    downloadUrl: buildDownloadUrl(owner, repo, folder, branch),
-    rawSkillMdUrl: buildSkillMdUrl(owner, repo, folder, branch),
+    githubUrl: buildGitHubUrl(owner, repo, fullPath, branch),
+    downloadUrl: buildDownloadUrl(owner, repo, fullPath, branch),
+    rawSkillMdUrl: buildSkillMdUrl(owner, repo, fullPath, branch),
     displayName: metadata.name || formatSkillName(folder),
     shortDescription: getShortDescription(metadata.description),
     repoDisplayName,
@@ -134,7 +142,8 @@ export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
     config: repoOptions,
   } = config;
 
-  const skillFolders = await fetchSkillFolders(owner, repo, branch);
+  const skillsPath = repoOptions?.skillsPath || '';
+  const skillFolders = await fetchSkillFolders(owner, repo, branch, skillsPath);
 
   // Apply folder exclusions
   const excludeFolders = repoOptions?.excludeFolders || [];
@@ -145,7 +154,13 @@ export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
   const skills: Skill[] = [];
 
   for (const folder of filteredFolders) {
-    const metadata = await fetchSkillMetadata(owner, repo, folder, branch);
+    const metadata = await fetchSkillMetadata(
+      owner,
+      repo,
+      folder,
+      branch,
+      skillsPath
+    );
 
     if (metadata) {
       // Determine category override
@@ -164,6 +179,7 @@ export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
           branch,
           metadata,
           displayName,
+          skillsPath,
           categoryOverride
         )
       );

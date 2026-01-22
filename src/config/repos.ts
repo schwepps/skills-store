@@ -13,6 +13,7 @@ export const registeredRepos: RepoConfig[] = [
     website: 'https://github.com/anthropics/skills',
     featured: true,
     config: {
+      skillsPath: 'skills',
       categoryOverrides: {
         pdf: 'document',
         docx: 'document',
@@ -23,7 +24,6 @@ export const registeredRepos: RepoConfig[] = [
         'frontend-design': 'design',
         'brand-guidelines': 'design',
       },
-      excludeFolders: ['template-skill'],
     },
   },
   // Add more repos as needed

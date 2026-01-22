@@ -84,6 +84,8 @@ export interface RepoConfig {
  * Optional configuration for repository processing
  */
 export interface RepoConfigOptions {
+  /** Subdirectory containing skills (e.g., "skills" for anthropics/skills) */
+  skillsPath?: string;
   /** Force category for all skills in this repo */
   defaultCategory?: string;
   /** Category overrides by skill folder name */
