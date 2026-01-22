@@ -1,2 +1,100 @@
-// GitHub client will be implemented in Phase 03
-export {};
+import { GitHubApiError, GitHubRateLimitError } from '@/lib/errors';
+
+interface GitHubFetchOptions extends RequestInit {
+  /** Cache duration for ISR (seconds) */
+  revalidate?: number;
+}
+
+/**
+ * GitHub API client with authentication and error handling
+ */
+export async function githubFetch<T>(
+  url: string,
+  options: GitHubFetchOptions = {}
+): Promise<T> {
+  const { revalidate = 3600, ...fetchOptions } = options;
+
+  const headers: HeadersInit = {
+    Accept: 'application/vnd.github.v3+json',
+    ...fetchOptions.headers,
+  };
+
+  // Add authentication if token available
+  const token = process.env.GITHUB_TOKEN;
+  if (token) {
+    (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await fetch(url, {
+    ...fetchOptions,
+    headers,
+    next: { revalidate },
+  });
+
+  // Handle rate limiting
+  if (response.status === 403) {
+    const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining');
+    const rateLimitReset = response.headers.get('X-RateLimit-Reset');
+
+    if (rateLimitRemaining === '0' && rateLimitReset) {
+      throw new GitHubRateLimitError(
+        new Date(parseInt(rateLimitReset, 10) * 1000)
+      );
+    }
+  }
+
+  // Handle other errors
+  if (!response.ok) {
+    const message = await response.text();
+    throw new GitHubApiError(response.status, message, url);
+  }
+
+  return response.json();
+}
+
+/**
+ * Check if a file exists in a repository (HEAD request)
+ */
+export async function checkFileExists(url: string): Promise<boolean> {
+  try {
+    const headers: HeadersInit = {
+      Accept: 'application/vnd.github.v3+json',
+    };
+
+    const token = process.env.GITHUB_TOKEN;
+    if (token) {
+      (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'HEAD',
+      headers,
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Fetch raw file content (no JSON parsing)
+ */
+export async function fetchRawContent(
+  url: string,
+  revalidate: number = 3600
+): Promise<string> {
+  const response = await fetch(url, {
+    next: { revalidate },
+  });
+
+  if (!response.ok) {
+    throw new GitHubApiError(
+      response.status,
+      'Failed to fetch raw content',
+      url
+    );
+  }
+
+  return response.text();
+}
