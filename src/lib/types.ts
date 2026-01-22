@@ -43,6 +43,8 @@ export interface Skill {
   downloadUrl: string;
   /** Raw URL to SKILL.md content */
   rawSkillMdUrl: string;
+  /** Internal URL to skill detail page */
+  detailUrl: string;
 
   // Display
   /** Human-readable name (metadata.name or formatted skillName) */

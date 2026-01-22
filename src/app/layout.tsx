@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Header, Footer, SkipLink } from '@/components/layout';
+import { SkillsProvider } from '@/lib/context/skills-context';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -51,14 +52,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SkipLink />
-        <div className="relative min-h-screen flex flex-col">
-          <Header />
-          <main id="main-content" className="flex-1" tabIndex={-1}>
-            {children}
-          </main>
-          <Footer />
-        </div>
+        <SkillsProvider>
+          <SkipLink />
+          <div className="relative min-h-screen flex flex-col">
+            <Header />
+            <main id="main-content" className="flex-1" tabIndex={-1}>
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </SkillsProvider>
       </body>
     </html>
   );

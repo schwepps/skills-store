@@ -1,18 +1,20 @@
 import { fetchAllSkills } from '@/lib/github';
-import { extractCategories } from '@/lib/categories';
 import { registeredRepos } from '@/config/repos';
 import { SkillsFilterClient } from '@/components/skill/skills-filter-client';
 import { InstallTutorial } from '@/components/shared';
+import { SkillsHydrator } from '@/lib/context/skills-context';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
 
 export default async function HomePage() {
   const skills = await fetchAllSkills();
-  const categories = extractCategories(skills);
 
   return (
     <div className="container-page py-8 sm:py-12">
+      {/* Hydrate context for client-side caching */}
+      <SkillsHydrator skills={skills} repos={registeredRepos} />
+
       {/* Hero Section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Skills Store</h1>
@@ -24,11 +26,7 @@ export default async function HomePage() {
       </div>
 
       {/* Skills with Client-Side Filtering */}
-      <SkillsFilterClient
-        skills={skills}
-        categories={categories}
-        repos={registeredRepos}
-      />
+      <SkillsFilterClient skills={skills} repos={registeredRepos} />
 
       {/* Install Tutorial */}
       <InstallTutorial />

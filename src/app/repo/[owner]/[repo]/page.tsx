@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Star } from 'lucide-react';
 import { fetchRepoSkills } from '@/lib/github';
 import { getRepoConfig, registeredRepos } from '@/config/repos';
-import { extractCategories } from '@/lib/categories';
 import { SkillsFilterClient } from '@/components/skill/skills-filter-client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -53,7 +52,6 @@ export default async function RepoPage({ params }: PageProps) {
   }
 
   const skills = await fetchRepoSkills(repoConfig);
-  const categories = extractCategories(skills);
 
   return (
     <div className="container-page py-8 sm:py-12">
@@ -93,11 +91,7 @@ export default async function RepoPage({ params }: PageProps) {
       </div>
 
       {/* Skills with Filtering */}
-      <SkillsFilterClient
-        skills={skills}
-        categories={categories}
-        repos={[repoConfig]}
-      />
+      <SkillsFilterClient skills={skills} repos={[repoConfig]} />
     </div>
   );
 }

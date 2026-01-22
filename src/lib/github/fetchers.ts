@@ -123,6 +123,7 @@ function buildSkill(
     githubUrl: buildGitHubUrl(owner, repo, fullPath, branch),
     downloadUrl: buildDownloadUrl(owner, repo, fullPath, branch),
     rawSkillMdUrl: buildSkillMdUrl(owner, repo, fullPath, branch),
+    detailUrl: `/skill/${owner}/${repo}/${folder}`,
     displayName: metadata.name || formatSkillName(folder),
     shortDescription: getShortDescription(metadata.description),
     repoDisplayName,
