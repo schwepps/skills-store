@@ -1,0 +1,71 @@
+import { Download, ExternalLink } from 'lucide-react';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import type { Skill } from '@/lib/types';
+
+interface SkillCardProps {
+  skill: Skill;
+  className?: string;
+}
+
+export function SkillCard({ skill, className }: SkillCardProps) {
+  return (
+    <Card
+      className={cn(
+        'flex flex-col h-full hover:shadow-lg transition-shadow',
+        className
+      )}
+    >
+      <CardHeader className="flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-lg leading-tight">
+            {skill.displayName}
+          </CardTitle>
+          {skill.metadata.category && (
+            <Badge variant="secondary" className="shrink-0">
+              {skill.metadata.category}
+            </Badge>
+          )}
+        </div>
+        <CardDescription className="text-sm text-muted-foreground line-clamp-3">
+          {skill.shortDescription}
+        </CardDescription>
+        <p className="text-xs text-muted-foreground mt-2">
+          par {skill.repoDisplayName}
+        </p>
+      </CardHeader>
+
+      <CardFooter className="pt-4 gap-2">
+        <Button asChild className="flex-1">
+          <a
+            href={skill.downloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Télécharger ${skill.displayName}`}
+          >
+            <Download className="w-4 h-4 mr-2" aria-hidden="true" />
+            Télécharger
+          </a>
+        </Button>
+        <Button variant="outline" size="icon" asChild>
+          <a
+            href={skill.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Voir ${skill.displayName} sur GitHub`}
+          >
+            <ExternalLink className="w-4 h-4" aria-hidden="true" />
+          </a>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
