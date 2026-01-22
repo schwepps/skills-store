@@ -9,20 +9,20 @@ import { cn } from '@/lib/utils';
 const STEPS = [
   {
     icon: Download,
-    title: '1. Télécharger',
+    title: '1. Download',
     description:
-      'Clique sur "Télécharger" pour récupérer le fichier ZIP de la skill.',
+      'Click "Download" to get the skill ZIP file.',
   },
   {
     icon: Folder,
-    title: '2. Extraire',
-    description: 'Décompresse le ZIP pour obtenir le dossier de la skill.',
+    title: '2. Extract',
+    description: 'Unzip to get the skill folder.',
   },
   {
     icon: Settings,
-    title: '3. Installer',
+    title: '3. Install',
     description:
-      'Copie-colle le dossier dans les capacités de Claude (dossier commands).',
+      'Copy the folder into your Claude capabilities (commands folder).',
   },
 ];
 
@@ -37,7 +37,7 @@ export function InstallTutorial() {
       >
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl">
-            Comment installer une skill ?
+            How to install a skill?
           </CardTitle>
           <Button variant="ghost" size="sm">
             {isExpanded ? (
@@ -77,14 +77,14 @@ export function InstallTutorial() {
 
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            Besoin d&apos;aide ?{' '}
+            Need help?{' '}
             <a
               href="https://github.com/anthropics/claude-code"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:underline"
             >
-              Voir la documentation officielle →
+              View official documentation →
             </a>
           </p>
         </div>

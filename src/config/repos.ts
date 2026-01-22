@@ -9,7 +9,7 @@ export const registeredRepos: RepoConfig[] = [
     repo: 'skills',
     branch: 'main',
     displayName: 'Anthropic Official',
-    description: 'Skills officielles Anthropic (PDF, DOCX, PPTX...)',
+    description: 'Official Anthropic skills (PDF, DOCX, PPTX...)',
     website: 'https://github.com/anthropics/skills',
     featured: true,
     config: {
@@ -31,7 +31,7 @@ export const registeredRepos: RepoConfig[] = [
     repo: 'skills',
     branch: 'main',
     displayName: 'Schwepps',
-    description: 'Skills communautaires par Schwepps',
+    description: 'Community skills by Schwepps',
     website: 'https://github.com/schwepps/skills',
     featured: false,
   },

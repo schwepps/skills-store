@@ -16,7 +16,7 @@ interface SearchBarProps {
 export function SearchBar({
   value,
   onChange,
-  placeholder = 'Rechercher une skill...',
+  placeholder = 'Search for a skill...',
   className,
 }: SearchBarProps) {
   const [isPending, startTransition] = useTransition();
@@ -43,7 +43,7 @@ export function SearchBar({
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         className="pl-10 pr-10"
-        aria-label="Rechercher des skills"
+        aria-label="Search skills"
       />
       {value && (
         <Button
@@ -51,7 +51,7 @@ export function SearchBar({
           size="sm"
           className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
           onClick={() => handleChange('')}
-          aria-label="Effacer la recherche"
+          aria-label="Clear search"
         >
           <X className="h-4 w-4" />
         </Button>

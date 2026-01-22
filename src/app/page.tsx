@@ -17,9 +17,9 @@ export default async function HomePage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Skills Store</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Installe des super-pouvoirs dans Claude en 3 clics.
+          Install superpowers into Claude in 3 clicks.
           <br />
-          Pas besoin d&apos;être développeur.
+          No developer skills needed.
         </p>
       </div>
 
@@ -35,15 +35,17 @@ export default async function HomePage() {
 
       {/* Call to Action */}
       <div className="mt-16 text-center p-8 bg-muted rounded-lg">
-        <h2 className="text-2xl font-semibold mb-2">Tu as créé des skills ?</h2>
+        <h2 className="text-2xl font-semibold mb-2">Created some skills?</h2>
         <p className="text-muted-foreground mb-4">
-          Ajoute ton repo au store pour les partager avec la communauté.
+          Add your repo to the store and share with the community.
         </p>
         <a
           href="https://github.com/schwepps/skills-store/issues/new?template=add-repo.md"
+          target="_blank"
+          rel="noopener noreferrer"
           className="text-primary hover:underline font-medium"
         >
-          Proposer un repo →
+          Submit a repo →
         </a>
       </div>
     </div>

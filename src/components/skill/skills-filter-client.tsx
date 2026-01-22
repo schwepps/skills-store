@@ -68,14 +68,13 @@ export function SkillsFilterClient({
 
       {/* Results count */}
       <p className="text-sm text-muted-foreground mb-4">
-        {filteredSkills.length} skill{filteredSkills.length !== 1 ? 's' : ''}{' '}
-        trouvée{filteredSkills.length !== 1 ? 's' : ''}
+        {filteredSkills.length} skill{filteredSkills.length !== 1 ? 's' : ''} found
       </p>
 
       {/* Skills Grid */}
       <SkillGrid
         skills={filteredSkills}
-        emptyMessage="Aucune skill ne correspond à votre recherche."
+        emptyMessage="No skills match your search."
       />
     </>
   );

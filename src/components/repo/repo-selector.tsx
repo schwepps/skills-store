@@ -18,11 +18,11 @@ interface RepoSelectorProps {
 export function RepoSelector({ repos, selected, onSelect }: RepoSelectorProps) {
   return (
     <Select value={selected} onValueChange={onSelect}>
-      <SelectTrigger className="w-[200px]" aria-label="Filtrer par source">
-        <SelectValue placeholder="Filtrer par source" />
+      <SelectTrigger className="w-[200px]" aria-label="Filter by source">
+        <SelectValue placeholder="Filter by source" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="all">Toutes les sources</SelectItem>
+        <SelectItem value="all">All sources</SelectItem>
         {repos.map((repo) => (
           <SelectItem
             key={`${repo.owner}/${repo.repo}`}

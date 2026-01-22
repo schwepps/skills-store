@@ -14,15 +14,19 @@ export function Footer() {
           <nav className="flex gap-6">
             <a
               href="https://github.com/schwepps/skills-store/issues/new?template=add-repo.md"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Proposer un repo
+              Submit a repo
             </a>
             <a
               href="https://github.com/schwepps/skills-store"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Contribuer
+              Contribute
             </a>
           </nav>
         </div>

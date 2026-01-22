@@ -7,15 +7,15 @@ export default function NotFound() {
     <div className="container-page py-16 text-center">
       <div className="max-w-md mx-auto">
         <h1 className="text-6xl font-bold text-muted-foreground mb-4">404</h1>
-        <h2 className="text-2xl font-semibold mb-4">Page non trouvée</h2>
+        <h2 className="text-2xl font-semibold mb-4">Page not found</h2>
         <p className="text-muted-foreground mb-8">
-          La page que vous cherchez n&apos;existe pas ou a été déplacée.
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
         <div className="flex gap-4 justify-center">
           <Button asChild>
             <Link href="/">
               <Home className="w-4 h-4 mr-2" />
-              Retour à l&apos;accueil
+              Back to home
             </Link>
           </Button>
         </div>

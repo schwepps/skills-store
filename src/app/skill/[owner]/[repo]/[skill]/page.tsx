@@ -76,7 +76,7 @@ export default async function SkillPage({ params }: PageProps) {
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour au store
+          Back to store
         </Link>
       </Button>
 
@@ -92,7 +92,7 @@ export default async function SkillPage({ params }: PageProps) {
         <p className="text-lg text-muted-foreground">{metadata.description}</p>
 
         <p className="text-sm text-muted-foreground mt-2">
-          par {repoConfig.displayName}
+          by {repoConfig.displayName}
           {metadata.author && ` • ${metadata.author}`}
           {metadata.version && ` • v${metadata.version}`}
         </p>
@@ -103,13 +103,13 @@ export default async function SkillPage({ params }: PageProps) {
         <Button asChild size="lg">
           <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
             <Download className="w-5 h-5 mr-2" />
-            Télécharger
+            Download
           </a>
         </Button>
         <Button variant="outline" size="lg" asChild>
           <a href={githubUrl} target="_blank" rel="noopener noreferrer">
             <ExternalLink className="w-5 h-5 mr-2" />
-            Voir sur GitHub
+            View on GitHub
           </a>
         </Button>
       </div>
@@ -142,14 +142,14 @@ export default async function SkillPage({ params }: PageProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-            <li>Clique sur &quot;Télécharger&quot; ci-dessus</li>
-            <li>Extrais le fichier ZIP téléchargé</li>
+            <li>Click &quot;Download&quot; above</li>
+            <li>Extract the downloaded ZIP file</li>
             <li>
-              Copie-colle le dossier{' '}
-              <code className="bg-muted px-1 rounded">{skill}</code> dans tes
-              capacités Claude (dossier commands)
+              Copy the{' '}
+              <code className="bg-muted px-1 rounded">{skill}</code> folder into
+              your Claude capabilities (commands folder)
             </li>
-            <li>Redémarre Claude si nécessaire</li>
+            <li>Restart Claude if needed</li>
           </ol>
         </CardContent>
       </Card>

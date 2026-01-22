@@ -61,7 +61,7 @@ export default async function RepoPage({ params }: PageProps) {
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/">
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Retour au store
+          Back to store
         </Link>
       </Button>
 
@@ -86,7 +86,7 @@ export default async function RepoPage({ params }: PageProps) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-primary hover:underline mt-2"
           >
-            Voir sur GitHub
+            View on GitHub
             <ExternalLink className="w-4 h-4" />
           </a>
         )}
