@@ -4,17 +4,17 @@ import { Skill, Category } from '@/lib/types';
  * Category display configuration
  */
 const CATEGORY_CONFIG: Record<string, { label: string; icon: string }> = {
-  all: { label: 'Toutes', icon: 'LayoutGrid' },
+  all: { label: 'All', icon: 'LayoutGrid' },
   seo: { label: 'SEO & AI Search', icon: 'Search' },
   marketing: { label: 'Marketing', icon: 'Megaphone' },
-  music: { label: 'Musique', icon: 'Music' },
-  security: { label: 'Sécurité', icon: 'Shield' },
-  development: { label: 'Développement', icon: 'Code' },
+  music: { label: 'Music', icon: 'Music' },
+  security: { label: 'Security', icon: 'Shield' },
+  development: { label: 'Development', icon: 'Code' },
   design: { label: 'Design', icon: 'Palette' },
-  productivity: { label: 'Productivité', icon: 'Zap' },
+  productivity: { label: 'Productivity', icon: 'Zap' },
   data: { label: 'Data & Analytics', icon: 'BarChart3' },
   document: { label: 'Documents', icon: 'FileText' },
-  other: { label: 'Autres', icon: 'Folder' },
+  other: { label: 'Other', icon: 'Folder' },
 };
 
 /**

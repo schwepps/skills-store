@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: '%s | Skills Store',
   },
   description:
-    "Installe des super-pouvoirs dans Claude en 3 clics. Pas besoin d'être développeur.",
+    'Install superpowers into Claude in 3 clicks. No developer skills needed.',
   keywords: [
     'Claude',
     'AI',
@@ -27,15 +27,15 @@ export const metadata: Metadata = {
   creator: 'Skills Store',
   openGraph: {
     title: 'Skills Store',
-    description: 'Installe des super-pouvoirs dans Claude en 3 clics.',
+    description: 'Install superpowers into Claude in 3 clicks.',
     type: 'website',
-    locale: 'fr_FR',
+    locale: 'en_US',
     siteName: 'Skills Store',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Skills Store',
-    description: 'Installe des super-pouvoirs dans Claude en 3 clics.',
+    description: 'Install superpowers into Claude in 3 clicks.',
   },
   robots: {
     index: true,
@@ -49,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    <html lang="en">
       <body className={inter.className}>
         <SkipLink />
         <div className="relative min-h-screen flex flex-col">

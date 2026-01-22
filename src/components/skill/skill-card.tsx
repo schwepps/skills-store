@@ -39,7 +39,7 @@ export function SkillCard({ skill, className }: SkillCardProps) {
           {skill.shortDescription}
         </CardDescription>
         <p className="text-xs text-muted-foreground mt-2">
-          par {skill.repoDisplayName}
+          by {skill.repoDisplayName}
         </p>
       </CardHeader>
 
@@ -49,10 +49,10 @@ export function SkillCard({ skill, className }: SkillCardProps) {
             href={skill.downloadUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Télécharger ${skill.displayName}`}
+            aria-label={`Download ${skill.displayName}`}
           >
             <Download className="w-4 h-4 mr-2" aria-hidden="true" />
-            Télécharger
+            Download
           </a>
         </Button>
         <Button variant="outline" size="icon" asChild>
@@ -60,7 +60,7 @@ export function SkillCard({ skill, className }: SkillCardProps) {
             href={skill.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Voir ${skill.displayName} sur GitHub`}
+            aria-label={`View ${skill.displayName} on GitHub`}
           >
             <ExternalLink className="w-4 h-4" aria-hidden="true" />
           </a>

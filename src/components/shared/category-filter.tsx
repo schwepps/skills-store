@@ -36,7 +36,7 @@ export function CategoryFilter({
     <div
       className={cn('flex flex-wrap gap-2', className)}
       role="group"
-      aria-label="Filtrer par catégorie"
+      aria-label="Filter by category"
     >
       {categories.map((category) => (
         <Button

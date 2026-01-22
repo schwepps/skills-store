@@ -8,7 +8,7 @@ interface SkillGridProps {
 
 export function SkillGrid({
   skills,
-  emptyMessage = 'Aucune skill trouvée',
+  emptyMessage = 'No skills found',
 }: SkillGridProps) {
   if (skills.length === 0) {
     return (

@@ -38,7 +38,7 @@ export function RepoCard({ repo, skillCount }: RepoCardProps) {
       </CardHeader>
       <CardFooter className="gap-2">
         <Button asChild variant="outline" className="flex-1">
-          <Link href={`/repo/${repo.owner}/${repo.repo}`}>Voir les skills</Link>
+          <Link href={`/repo/${repo.owner}/${repo.repo}`}>View skills</Link>
         </Button>
         {repo.website && (
           <Button variant="ghost" size="icon" asChild>
@@ -46,7 +46,7 @@ export function RepoCard({ repo, skillCount }: RepoCardProps) {
               href={repo.website}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`Visiter le site de ${repo.displayName}`}
+              aria-label={`Visit ${repo.displayName} website`}
             >
               <ExternalLink className="w-4 h-4" aria-hidden="true" />
             </a>
