@@ -11,18 +11,18 @@ const STEPS = [
     icon: Download,
     title: '1. Télécharger',
     description:
-      'Clique sur le bouton "Télécharger" d\'une skill. Un fichier ZIP se télécharge.',
+      'Clique sur "Télécharger" pour récupérer le fichier ZIP de la skill.',
   },
   {
     icon: Folder,
     title: '2. Extraire',
-    description: 'Décompresse le ZIP et trouve le dossier de la skill.',
+    description: 'Décompresse le ZIP pour obtenir le dossier de la skill.',
   },
   {
     icon: Settings,
     title: '3. Installer',
     description:
-      'Copie le dossier dans ~/.claude/commands/ (Mac/Linux) ou %APPDATA%\\claude\\commands (Windows).',
+      'Copie-colle le dossier dans les capacités de Claude (dossier commands).',
   },
 ];
 

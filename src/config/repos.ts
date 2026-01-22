@@ -26,7 +26,15 @@ export const registeredRepos: RepoConfig[] = [
       },
     },
   },
-  // Add more repos as needed
+  {
+    owner: 'schwepps',
+    repo: 'skills',
+    branch: 'main',
+    displayName: 'Schwepps',
+    description: 'Skills communautaires par Schwepps',
+    website: 'https://github.com/schwepps/skills',
+    featured: false,
+  },
 ];
 
 /**

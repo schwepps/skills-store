@@ -143,24 +143,11 @@ export default async function SkillPage({ params }: PageProps) {
         <CardContent className="space-y-4">
           <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
             <li>Clique sur &quot;Télécharger&quot; ci-dessus</li>
-            <li>Extrait le fichier ZIP téléchargé</li>
+            <li>Extrais le fichier ZIP téléchargé</li>
             <li>
-              Copie le dossier{' '}
-              <code className="bg-muted px-1 rounded">{skill}</code> dans :
-              <ul className="list-disc list-inside ml-4 mt-1">
-                <li>
-                  Mac/Linux :{' '}
-                  <code className="bg-muted px-1 rounded">
-                    ~/.claude/commands/
-                  </code>
-                </li>
-                <li>
-                  Windows :{' '}
-                  <code className="bg-muted px-1 rounded">
-                    %APPDATA%\claude\commands\
-                  </code>
-                </li>
-              </ul>
+              Copie-colle le dossier{' '}
+              <code className="bg-muted px-1 rounded">{skill}</code> dans tes
+              capacités Claude (dossier commands)
             </li>
             <li>Redémarre Claude si nécessaire</li>
           </ol>
