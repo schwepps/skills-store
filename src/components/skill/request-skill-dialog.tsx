@@ -29,15 +29,24 @@ import { SKILL_CATEGORIES } from '@/lib/constants/categories';
 
 export function RequestSkillDialog() {
   const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    category: '',
+    description: '',
+    examplePrompts: '',
+  });
 
   const [state, action, isPending] = useActionState<RequestSkillState, FormData>(
     requestSkillAction,
     { status: 'idle' }
   );
 
-  // Reset state when dialog closes
+  // Reset form when dialog opens (fresh start)
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
+    if (newOpen) {
+      setFormData({ name: '', category: '', description: '', examplePrompts: '' });
+    }
   };
 
   return (
@@ -88,6 +97,8 @@ export function RequestSkillDialog() {
               <Input
                 id="name"
                 name="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g., Code Review Assistant"
                 aria-invalid={!!state.fieldErrors?.name}
                 required
@@ -104,7 +115,12 @@ export function RequestSkillDialog() {
               >
                 Category *
               </label>
-              <Select name="category" required>
+              <Select
+                name="category"
+                value={formData.category}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                required
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -131,6 +147,8 @@ export function RequestSkillDialog() {
               <Textarea
                 id="description"
                 name="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 placeholder="What should this skill do? Be specific about capabilities, use cases, and expected behavior..."
                 rows={4}
                 aria-invalid={!!state.fieldErrors?.description}
@@ -151,6 +169,8 @@ export function RequestSkillDialog() {
               <Textarea
                 id="examplePrompts"
                 name="examplePrompts"
+                value={formData.examplePrompts}
+                onChange={(e) => setFormData(prev => ({ ...prev, examplePrompts: e.target.value }))}
                 placeholder="How would users interact with this skill? Add example prompts or commands..."
                 rows={3}
               />
