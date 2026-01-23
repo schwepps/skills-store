@@ -7,11 +7,11 @@ import {
   useEffect,
   type ReactNode,
 } from 'react';
-import type { Skill, RepoConfig } from '@/lib/types';
+import type { Skill, RepoInfo } from '@/lib/types';
 
 interface SkillsContextValue {
   skills: Skill[];
-  repos: RepoConfig[];
+  repos: RepoInfo[];
   isHydrated: boolean;
 }
 
@@ -23,7 +23,7 @@ interface SkillsProviderProps {
 
 export function SkillsProvider({ children }: SkillsProviderProps) {
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [repos, setRepos] = useState<RepoConfig[]>([]);
+  const [repos, setRepos] = useState<RepoInfo[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
 
   return (
@@ -40,7 +40,7 @@ export function SkillsProvider({ children }: SkillsProviderProps) {
 // Separate context for hydration to avoid re-renders
 interface HydratorContextValue {
   setSkills: (skills: Skill[]) => void;
-  setRepos: (repos: RepoConfig[]) => void;
+  setRepos: (repos: RepoInfo[]) => void;
   setIsHydrated: (hydrated: boolean) => void;
 }
 
@@ -60,7 +60,7 @@ export function useSkillsContext() {
  */
 interface SkillsHydratorProps {
   skills: Skill[];
-  repos: RepoConfig[];
+  repos: RepoInfo[];
 }
 
 export function SkillsHydrator({ skills, repos }: SkillsHydratorProps) {

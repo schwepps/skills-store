@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchAllSkills } from '@/lib/github';
+import { getAllSkills } from '@/lib/data';
 import { handleApiError } from '@/lib/api/errors';
 import type { SkillsApiResponse } from '@/lib/types';
 
@@ -12,7 +12,7 @@ export const revalidate = 3600;
  */
 export async function GET() {
   try {
-    const skills = await fetchAllSkills();
+    const skills = await getAllSkills();
 
     const response: SkillsApiResponse = {
       skills,

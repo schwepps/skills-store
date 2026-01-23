@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchRepoSkills } from '@/lib/github';
+import { getSkillsByRepo } from '@/lib/data';
 import { getRepoConfig } from '@/config/repos';
 import { handleApiError } from '@/lib/api/errors';
 import type { RepoApiResponse } from '@/lib/types';
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const skills = await fetchRepoSkills(repoConfig);
+    const skills = await getSkillsByRepo(owner, repo);
 
     const response: RepoApiResponse = {
       repo: repoConfig,

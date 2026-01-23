@@ -1,4 +1,41 @@
 /**
+ * Example prompt that can be copied and used
+ */
+export interface ExamplePrompt {
+  /** Short title/description of the example */
+  title?: string;
+  /** The actual prompt text */
+  prompt: string;
+  /** Expected outcome description */
+  expectedOutcome?: string;
+}
+
+/**
+ * Workflow phase with steps
+ */
+export interface WorkflowPhase {
+  /** Phase name (e.g., "1. Analysis") */
+  name: string;
+  /** Phase description */
+  description: string;
+  /** Sub-steps if any */
+  steps?: string[];
+}
+
+/**
+ * Extended content extracted from SKILL.md body
+ * Separate from frontmatter metadata
+ */
+export interface SkillContent {
+  /** Usage scenarios - "When to use this skill" bullets */
+  usageTriggers?: string[];
+  /** Example prompts users can copy */
+  examplePrompts?: ExamplePrompt[];
+  /** Workflow phases/steps if present */
+  workflowPhases?: WorkflowPhase[];
+}
+
+/**
  * Metadata extracted from SKILL.md frontmatter
  * Supports 3 formats: Anthropic minimal, extended, and alternative
  */
@@ -17,6 +54,8 @@ export interface SkillMetadata {
   version?: string;
   /** License */
   license?: string;
+  /** Extended content from markdown body */
+  content?: SkillContent;
 }
 
 /**
@@ -108,6 +147,19 @@ export interface RepoWithSkills {
   lastFetched: string;
   /** Error message if fetch failed */
   error?: string;
+}
+
+/**
+ * Simplified repository info for filtering UI
+ * Used when we don't need full RepoConfig details
+ */
+export interface RepoInfo {
+  /** GitHub username or organization */
+  owner: string;
+  /** Repository name */
+  repo: string;
+  /** Human-readable name for UI */
+  displayName: string;
 }
 
 /**

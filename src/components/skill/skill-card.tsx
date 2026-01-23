@@ -1,4 +1,6 @@
-import Link from 'next/link';
+'use client';
+
+import { useRouter } from 'next/navigation';
 import { Download, ExternalLink } from 'lucide-react';
 import {
   Card,
@@ -18,8 +20,27 @@ interface SkillCardProps {
 }
 
 export function SkillCard({ skill, className }: SkillCardProps) {
+  const router = useRouter();
+
+  const handleCardClick = () => {
+    router.push(skill.detailUrl);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      router.push(skill.detailUrl);
+    }
+  };
+
   return (
-    <Link href={skill.detailUrl} className="block group">
+    <div
+      onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
+      role="link"
+      tabIndex={0}
+      className="block group cursor-pointer"
+    >
       <Card
         className={cn(
           'flex flex-col h-full hover:shadow-lg transition-all cursor-pointer',
@@ -79,6 +100,6 @@ export function SkillCard({ skill, className }: SkillCardProps) {
           </Button>
         </CardFooter>
       </Card>
-    </Link>
+    </div>
   );
 }

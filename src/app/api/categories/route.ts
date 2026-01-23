@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { fetchAllSkills } from '@/lib/github';
+import { getAllSkills } from '@/lib/data';
 import { extractCategories } from '@/lib/categories';
 import { handleApiError } from '@/lib/api/errors';
 
@@ -12,7 +12,7 @@ export const revalidate = 3600;
  */
 export async function GET() {
   try {
-    const skills = await fetchAllSkills();
+    const skills = await getAllSkills();
     const categories = extractCategories(skills);
 
     return NextResponse.json({

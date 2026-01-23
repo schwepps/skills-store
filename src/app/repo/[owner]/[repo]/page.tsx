@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Star } from 'lucide-react';
-import { fetchRepoSkills } from '@/lib/github';
+import { getSkillsByRepo } from '@/lib/data';
 import { getRepoConfig, registeredRepos } from '@/config/repos';
 import { SkillsFilterClient } from '@/components/skill/skills-filter-client';
 import { Button } from '@/components/ui/button';
@@ -51,7 +51,7 @@ export default async function RepoPage({ params }: PageProps) {
     notFound();
   }
 
-  const skills = await fetchRepoSkills(repoConfig);
+  const skills = await getSkillsByRepo(owner, repo);
 
   return (
     <div className="container-page py-8 sm:py-12">

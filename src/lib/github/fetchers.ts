@@ -8,6 +8,10 @@ import {
   buildRawUrl,
 } from './urls';
 import { parseSkillFrontmatter } from '@/lib/parser/frontmatter';
+import {
+  DEFAULT_EXCLUDED_FOLDERS,
+  MAX_SHORT_DESCRIPTION_LENGTH,
+} from '@/lib/config/constants';
 
 interface GitHubContent {
   name: string;
@@ -28,23 +32,18 @@ export async function fetchRepoDirectories(
   const contents = await githubFetch<GitHubContent[]>(url);
 
   // Filter to directories only, exclude hidden and system folders
-  const excludedFolders = [
-    '.github',
-    'scripts',
-    'dist',
-    'node_modules',
-    '.claude',
-  ];
-
   return contents
     .filter((item) => item.type === 'dir')
     .filter((item) => !item.name.startsWith('.'))
-    .filter((item) => !excludedFolders.includes(item.name))
+    .filter(
+      (item) => !DEFAULT_EXCLUDED_FOLDERS.includes(item.name as typeof DEFAULT_EXCLUDED_FOLDERS[number])
+    )
     .map((item) => item.name);
 }
 
 /**
  * Find directories that contain a SKILL.md file
+ * Uses parallel checking for better performance
  */
 export async function fetchSkillFolders(
   owner: string,
@@ -53,25 +52,29 @@ export async function fetchSkillFolders(
   basePath: string = ''
 ): Promise<string[]> {
   const directories = await fetchRepoDirectories(owner, repo, branch, basePath);
-  const skillFolders: string[] = [];
 
-  // Check each directory for SKILL.md
-  for (const folder of directories) {
-    const fullPath = basePath ? `${basePath}/${folder}` : folder;
-    const skillMdUrl = buildContentsUrl(
-      owner,
-      repo,
-      `${fullPath}/SKILL.md`,
-      branch
-    );
-    const hasSkillMd = await checkFileExists(skillMdUrl);
+  // Check all directories in parallel
+  const checkResults = await Promise.allSettled(
+    directories.map(async (folder) => {
+      const fullPath = basePath ? `${basePath}/${folder}` : folder;
+      const skillMdUrl = buildContentsUrl(
+        owner,
+        repo,
+        `${fullPath}/SKILL.md`,
+        branch
+      );
+      const hasSkillMd = await checkFileExists(skillMdUrl);
+      return { folder, hasSkillMd };
+    })
+  );
 
-    if (hasSkillMd) {
-      skillFolders.push(folder);
-    }
-  }
-
-  return skillFolders;
+  // Filter to folders that have SKILL.md
+  return checkResults
+    .filter(
+      (result): result is PromiseFulfilledResult<{ folder: string; hasSkillMd: boolean }> =>
+        result.status === 'fulfilled' && result.value.hasSkillMd
+    )
+    .map((result) => result.value.folder);
 }
 
 /**
@@ -133,8 +136,10 @@ function buildSkill(
 
 /**
  * Fetch all skills from a repository
+ * Uses parallel fetching for better performance
  */
 export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
+  const startTime = performance.now();
   const {
     owner,
     repo,
@@ -152,18 +157,27 @@ export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
     (f) => !excludeFolders.includes(f)
   );
 
+  // Fetch all metadata in parallel
+  const metadataResults = await Promise.allSettled(
+    filteredFolders.map(async (folder) => {
+      const metadata = await fetchSkillMetadata(
+        owner,
+        repo,
+        folder,
+        branch,
+        skillsPath
+      );
+      return { folder, metadata };
+    })
+  );
+
+  // Build skills from successful metadata fetches
   const skills: Skill[] = [];
 
-  for (const folder of filteredFolders) {
-    const metadata = await fetchSkillMetadata(
-      owner,
-      repo,
-      folder,
-      branch,
-      skillsPath
-    );
+  for (const result of metadataResults) {
+    if (result.status === 'fulfilled' && result.value.metadata) {
+      const { folder, metadata } = result.value;
 
-    if (metadata) {
       // Determine category override
       let categoryOverride: string | undefined;
       if (repoOptions?.categoryOverrides?.[folder]) {
@@ -187,29 +201,44 @@ export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
     }
   }
 
+  const duration = Math.round(performance.now() - startTime);
+  console.log(`[Fetchers] ${owner}/${repo}: ${skills.length} skills in ${duration}ms`);
+
   return skills;
 }
 
 /**
  * Fetch skills from all registered repositories
+ * Uses parallel fetching for better performance
  */
 export async function fetchAllSkills(): Promise<Skill[]> {
+  const startTime = performance.now();
   const { registeredRepos } = await import('@/config/repos');
 
+  console.log(`[Fetchers] Starting parallel fetch for ${registeredRepos.length} repos...`);
+
+  // Fetch all repos in parallel
+  const results = await Promise.allSettled(
+    registeredRepos.map((repoConfig) => fetchRepoSkills(repoConfig))
+  );
+
+  // Collect successful results and log errors
   const allSkills: Skill[] = [];
 
-  for (const repoConfig of registeredRepos) {
-    try {
-      const skills = await fetchRepoSkills(repoConfig);
-      allSkills.push(...skills);
-    } catch (error) {
+  results.forEach((result, index) => {
+    const config = registeredRepos[index];
+    if (result.status === 'fulfilled') {
+      allSkills.push(...result.value);
+    } else {
       console.error(
-        `Error fetching ${repoConfig.owner}/${repoConfig.repo}:`,
-        error
+        `[Fetchers] Error fetching ${config.owner}/${config.repo}:`,
+        result.reason
       );
-      // Continue with other repos on failure
     }
-  }
+  });
+
+  const duration = Math.round(performance.now() - startTime);
+  console.log(`[Fetchers] Total: ${allSkills.length} skills from ${registeredRepos.length} repos in ${duration}ms`);
 
   return allSkills;
 }
@@ -224,5 +253,8 @@ function formatSkillName(folder: string): string {
 
 function getShortDescription(description: string): string {
   const firstLine = description.split('\n')[0];
-  return firstLine.length > 120 ? firstLine.slice(0, 117) + '...' : firstLine;
+  if (firstLine.length > MAX_SHORT_DESCRIPTION_LENGTH) {
+    return firstLine.slice(0, MAX_SHORT_DESCRIPTION_LENGTH - 3) + '...';
+  }
+  return firstLine;
 }

@@ -6,6 +6,36 @@ interface GitHubFetchOptions extends RequestInit {
 }
 
 /**
+ * Build GitHub API headers with optional authentication
+ */
+function buildGitHubHeaders(
+  additionalHeaders?: HeadersInit
+): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: 'application/vnd.github.v3+json',
+  };
+
+  const token = process.env.GITHUB_TOKEN;
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Merge additional headers
+  if (additionalHeaders) {
+    const headerEntries =
+      additionalHeaders instanceof Headers
+        ? Array.from(additionalHeaders.entries())
+        : Object.entries(additionalHeaders);
+
+    for (const [key, value] of headerEntries) {
+      headers[key] = value;
+    }
+  }
+
+  return headers;
+}
+
+/**
  * GitHub API client with authentication and error handling
  */
 export async function githubFetch<T>(
@@ -14,16 +44,7 @@ export async function githubFetch<T>(
 ): Promise<T> {
   const { revalidate = 3600, ...fetchOptions } = options;
 
-  const headers: HeadersInit = {
-    Accept: 'application/vnd.github.v3+json',
-    ...fetchOptions.headers,
-  };
-
-  // Add authentication if token available
-  const token = process.env.GITHUB_TOKEN;
-  if (token) {
-    (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
-  }
+  const headers = buildGitHubHeaders(fetchOptions.headers);
 
   const response = await fetch(url, {
     ...fetchOptions,
@@ -57,14 +78,7 @@ export async function githubFetch<T>(
  */
 export async function checkFileExists(url: string): Promise<boolean> {
   try {
-    const headers: HeadersInit = {
-      Accept: 'application/vnd.github.v3+json',
-    };
-
-    const token = process.env.GITHUB_TOKEN;
-    if (token) {
-      (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = buildGitHubHeaders();
 
     const response = await fetch(url, {
       method: 'HEAD',

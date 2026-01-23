@@ -1,16 +1,22 @@
 import matter from 'gray-matter';
 import { SkillMetadata } from '@/lib/types';
 import { inferCategory, inferTagsFromDescription } from './inference';
+import { extractSkillContent } from './content-extractor';
 
 /**
- * Parse SKILL.md frontmatter supporting multiple formats:
+ * Parse SKILL.md frontmatter and body content supporting multiple formats:
  * - Anthropic minimal: { name, description }
  * - Extended: { name, description, metadata: { category, tags, author, version } }
  * - Alternative: { name, description, category, tags, author, version }
+ *
+ * Also extracts extended content from the markdown body:
+ * - Usage triggers ("When to Use" sections)
+ * - Example prompts
+ * - Workflow phases
  */
 export function parseSkillFrontmatter(content: string): SkillMetadata | null {
   try {
-    const { data } = matter(content);
+    const { data, content: markdownBody } = matter(content);
 
     // Require at least name or description
     if (!data.name && !data.description) {
@@ -21,6 +27,18 @@ export function parseSkillFrontmatter(content: string): SkillMetadata | null {
 
     // Extract from nested metadata if present (extended format)
     const nestedMetadata = data.metadata || {};
+
+    // Extract extended content from markdown body
+    const extendedContent = markdownBody
+      ? extractSkillContent(markdownBody)
+      : undefined;
+
+    // Only include content if it has any data
+    const hasExtendedContent =
+      extendedContent &&
+      (extendedContent.usageTriggers?.length ||
+        extendedContent.examplePrompts?.length ||
+        extendedContent.workflowPhases?.length);
 
     // Build metadata with fallbacks across formats
     const metadata: SkillMetadata = {
@@ -42,6 +60,8 @@ export function parseSkillFrontmatter(content: string): SkillMetadata | null {
       version: nestedMetadata.version || data.version,
       // License: flat only
       license: data.license,
+      // Extended content from markdown body
+      content: hasExtendedContent ? extendedContent : undefined,
     };
 
     return metadata;

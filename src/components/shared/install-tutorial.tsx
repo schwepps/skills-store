@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Folder, Download, Settings } from 'lucide-react';
+import { ChevronDown, ChevronUp, Download, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -14,15 +14,10 @@ const STEPS = [
       'Click "Download" to get the skill ZIP file.',
   },
   {
-    icon: Folder,
-    title: '2. Extract',
-    description: 'Unzip to get the skill folder.',
-  },
-  {
     icon: Settings,
-    title: '3. Install',
+    title: '2. Install',
     description:
-      'Copy the folder into your Claude capabilities (commands folder).',
+      'Copy the zip file into your Claude capabilities.',
   },
 ];
 
@@ -57,7 +52,7 @@ export function InstallTutorial() {
             : 'grid-rows-[0fr] opacity-0 overflow-hidden'
         )}
       >
-        <div className="grid gap-6 md:grid-cols-3 overflow-hidden">
+        <div className="grid gap-6 md:grid-cols-2 overflow-hidden">
           {STEPS.map((step, index) => (
             <div
               key={index}
@@ -73,20 +68,6 @@ export function InstallTutorial() {
               <p className="text-sm text-muted-foreground">{step.description}</p>
             </div>
           ))}
-        </div>
-
-        <div className="text-center">
-          <p className="text-sm text-muted-foreground">
-            Need help?{' '}
-            <a
-              href="https://github.com/anthropics/claude-code"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              View official documentation →
-            </a>
-          </p>
         </div>
       </CardContent>
     </Card>

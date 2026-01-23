@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { registeredRepos } from '@/config/repos';
-import { fetchAllSkills } from '@/lib/github';
+import { getAllSkills } from '@/lib/data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl =
@@ -27,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Skill pages
   let skillPages: MetadataRoute.Sitemap = [];
   try {
-    const skills = await fetchAllSkills();
+    const skills = await getAllSkills();
     skillPages = skills.map((skill) => ({
       url: `${baseUrl}/skill/${skill.owner}/${skill.repo}/${skill.skillName}`,
       lastModified: new Date(),

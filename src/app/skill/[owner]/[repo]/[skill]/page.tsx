@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Download, ExternalLink, Tag } from 'lucide-react';
-import { fetchSkillMetadata } from '@/lib/github';
+import { getSkillByName } from '@/lib/data';
 import { getRepoConfig } from '@/config/repos';
-import { buildDownloadUrl, buildGitHubUrl } from '@/lib/github/urls';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SkillUsageTriggers } from '@/components/skill/skill-usage-triggers';
+import { SkillExamples } from '@/components/skill/skill-examples';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -17,33 +18,71 @@ interface PageProps {
   }>;
 }
 
-// Generate metadata
+// Generate dynamic metadata based on skill content
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { owner, repo, skill } = await params;
-  const repoConfig = getRepoConfig(owner, repo);
+  const skillData = await getSkillByName(owner, repo, skill);
 
-  if (!repoConfig) {
-    return { title: 'Skill not found' };
+  if (!skillData) {
+    return {
+      title: 'Skill not found',
+      description: 'The requested skill could not be found.',
+    };
   }
 
-  const skillsPath = repoConfig.config?.skillsPath || '';
-  const metadata = await fetchSkillMetadata(
-    owner,
-    repo,
-    skill,
-    repoConfig.branch,
-    skillsPath
-  );
+  const { metadata, githubUrl, detailUrl, displayName } = skillData;
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || 'https://skills-store.vercel.app';
+  const canonicalUrl = `${baseUrl}${detailUrl}`;
 
-  if (!metadata) {
-    return { title: 'Skill not found' };
-  }
+  // Build keywords from tags + category
+  const keywords = [
+    'Claude',
+    'AI skill',
+    metadata.category,
+    ...(metadata.tags || []),
+  ].filter(Boolean) as string[];
 
   return {
-    title: `${metadata.name} - Skills Store`,
+    title: displayName,
     description: metadata.description,
+    keywords,
+    authors: metadata.author ? [{ name: metadata.author }] : undefined,
+
+    openGraph: {
+      title: `${displayName} - Claude Skill`,
+      description: metadata.description,
+      url: canonicalUrl,
+      type: 'article',
+      siteName: 'Skills Store',
+      images: [
+        {
+          url: '/images/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: `${displayName} - Claude AI Skill`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title: `${displayName} - Claude Skill`,
+      description: metadata.description,
+      images: ['/images/og-image.png'],
+    },
+
+    alternates: {
+      canonical: canonicalUrl,
+    },
+
+    other: {
+      'skill:category': metadata.category || 'general',
+      'skill:version': metadata.version || '',
+      'skill:source': githubUrl,
+    },
   };
 }
 
@@ -58,17 +97,13 @@ export default async function SkillPage({ params }: PageProps) {
     notFound();
   }
 
-  const branch = repoConfig.branch || 'main';
-  const skillsPath = repoConfig.config?.skillsPath || '';
-  const metadata = await fetchSkillMetadata(owner, repo, skill, branch, skillsPath);
+  const skillData = await getSkillByName(owner, repo, skill);
 
-  if (!metadata) {
+  if (!skillData) {
     notFound();
   }
 
-  const fullPath = skillsPath ? `${skillsPath}/${skill}` : skill;
-  const downloadUrl = buildDownloadUrl(owner, repo, fullPath, branch);
-  const githubUrl = buildGitHubUrl(owner, repo, fullPath, branch);
+  const { metadata, downloadUrl, githubUrl } = skillData;
 
   return (
     <div className="container-narrow py-8 sm:py-12">
@@ -134,6 +169,22 @@ export default async function SkillPage({ params }: PageProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Usage Triggers */}
+      {metadata.content?.usageTriggers &&
+        metadata.content.usageTriggers.length > 0 && (
+          <div className="mb-8">
+            <SkillUsageTriggers triggers={metadata.content.usageTriggers} />
+          </div>
+        )}
+
+      {/* Example Prompts */}
+      {metadata.content?.examplePrompts &&
+        metadata.content.examplePrompts.length > 0 && (
+          <div className="mb-8">
+            <SkillExamples prompts={metadata.content.examplePrompts} />
+          </div>
+        )}
 
       {/* Installation Instructions */}
       <Card>

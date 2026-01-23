@@ -32,11 +32,24 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'Skills Store',
+    images: [
+      {
+        url: '/images/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Skills Store - Install Claude Skills Easily',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Skills Store',
     description: 'Install superpowers into Claude in 3 clicks.',
+    images: ['/images/og-image.png'],
+  },
+  icons: {
+    icon: '/images/logo.png',
+    apple: '/images/logo.png',
   },
   robots: {
     index: true,
