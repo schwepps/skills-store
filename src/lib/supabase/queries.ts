@@ -1,6 +1,7 @@
 import { createServerComponentClient } from './client';
 import type { Repository, DbSkill } from './types';
 import type { Skill, SkillContent } from '@/lib/types';
+import { buildDownloadUrl } from '@/lib/github/urls';
 
 /**
  * Handle Supabase query errors consistently
@@ -46,7 +47,7 @@ function transformDbSkillToSkill(
       content: extendedContent || undefined,
     },
     githubUrl: dbSkill.github_url,
-    downloadUrl: dbSkill.download_url,
+    downloadUrl: buildDownloadUrl(repo.owner, repo.repo, dbSkill.skill_name),
     rawSkillMdUrl: '', // Can be reconstructed if needed
     detailUrl: dbSkill.detail_url,
     displayName: dbSkill.display_name,

@@ -64,7 +64,7 @@ export function SkillCard({ skill, className }: SkillCardProps) {
             {skill.shortDescription}
           </CardDescription>
           <p className="text-xs text-muted-foreground mt-2">
-            by {skill.repoDisplayName}
+            by {skill.repoDisplayName} • {formatCount(skill.downloadCount)} downloads
           </p>
         </CardHeader>
 
@@ -92,11 +92,6 @@ export function SkillCard({ skill, className }: SkillCardProps) {
               >
                 <Download className="w-4 h-4 mr-2" aria-hidden="true" />
                 Download
-                {skill.downloadCount > 0 && (
-                  <span className="ml-1.5 text-xs opacity-80">
-                    ({formatCount(skill.downloadCount)})
-                  </span>
-                )}
               </a>
             </Button>
             <Button

@@ -124,7 +124,7 @@ function buildSkill(
       category: finalCategory,
     },
     githubUrl: buildGitHubUrl(owner, repo, fullPath, branch),
-    downloadUrl: buildDownloadUrl(owner, repo, fullPath, branch),
+    downloadUrl: buildDownloadUrl(owner, repo, folder),
     rawSkillMdUrl: buildSkillMdUrl(owner, repo, fullPath, branch),
     detailUrl: `/skill/${owner}/${repo}/${folder}`,
     displayName: metadata.name || formatSkillName(folder),

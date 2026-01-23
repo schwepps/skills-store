@@ -41,9 +41,9 @@ export function buildGitHubUrl(
 }
 
 /**
- * Build download URL via download-directory.github.io
+ * Build download URL via download-directory.github.io (direct)
  */
-export function buildDownloadUrl(
+export function buildDirectDownloadUrl(
   owner: string,
   repo: string,
   path: string,
@@ -51,6 +51,17 @@ export function buildDownloadUrl(
 ): string {
   const githubUrl = `https://github.com/${owner}/${repo}/tree/${branch}/${path}`;
   return `${DOWNLOAD_HELPER}/?url=${encodeURIComponent(githubUrl)}`;
+}
+
+/**
+ * Build download URL via our API (tracks download count)
+ */
+export function buildDownloadUrl(
+  owner: string,
+  repo: string,
+  skillName: string
+): string {
+  return `/api/download/${owner}/${repo}/${skillName}`;
 }
 
 /**

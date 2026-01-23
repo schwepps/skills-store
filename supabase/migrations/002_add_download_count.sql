@@ -1,5 +1,5 @@
 -- Migration: Add download_count column to skills table
--- Description: Track installation statistics from skills.sh
+-- Description: Track download statistics for skills
 
 ALTER TABLE skills ADD COLUMN IF NOT EXISTS download_count INTEGER DEFAULT 0;
 
@@ -7,4 +7,4 @@ ALTER TABLE skills ADD COLUMN IF NOT EXISTS download_count INTEGER DEFAULT 0;
 CREATE INDEX IF NOT EXISTS idx_skills_download_count ON skills(download_count DESC);
 
 -- Add comment for documentation
-COMMENT ON COLUMN skills.download_count IS 'Installation count from skills.sh ecosystem';
+COMMENT ON COLUMN skills.download_count IS 'Download count tracked via API';

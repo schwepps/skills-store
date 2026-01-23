@@ -6,14 +6,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format a number for display (e.g., 1234 -> "1.2K", 1234567 -> "1.2M")
+ * Format a number for display using native Intl (e.g., 1234 -> "1.2K")
  */
 export function formatCount(count: number): string {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M`;
-  }
-  if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K`;
-  }
-  return count.toString();
+  return new Intl.NumberFormat('en', {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(count);
 }

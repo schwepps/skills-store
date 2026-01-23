@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getRepoConfig } from '@/config/repos';
-import { buildDownloadUrl } from '@/lib/github/urls';
+import { buildDirectDownloadUrl } from '@/lib/github/urls';
+import { createAdminClient } from '@/lib/supabase/client';
 
 interface RouteParams {
   params: Promise<{
@@ -10,7 +11,7 @@ interface RouteParams {
 
 /**
  * GET /api/download/[owner]/[repo]/[skill]
- * Redirects to download-directory.github.io for folder download
+ * Increments download count and redirects to download-directory.github.io
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const segments = (await params).params;
@@ -41,8 +42,21 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 
+  // Increment download count (fire and forget - don't block redirect)
+  // Uses RPC function defined in migration 002_add_download_count.sql
+  const supabase = createAdminClient();
+  (supabase.rpc as Function)('increment_download_count', {
+    p_owner: owner,
+    p_repo: repo,
+    p_skill_name: skill,
+  }).catch((error: Error) => {
+    console.error('Failed to increment download count:', error);
+  });
+
   const branch = repoConfig.branch || 'main';
-  const downloadUrl = buildDownloadUrl(owner, repo, skill, branch);
+  const skillsPath = repoConfig.config?.skillsPath || '';
+  const fullPath = skillsPath ? `${skillsPath}/${skill}` : skill;
+  const downloadUrl = buildDirectDownloadUrl(owner, repo, fullPath, branch);
 
   // Redirect to download-directory.github.io
   return NextResponse.redirect(downloadUrl);

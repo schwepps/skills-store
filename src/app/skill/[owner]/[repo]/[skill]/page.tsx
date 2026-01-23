@@ -132,7 +132,7 @@ export default async function SkillPage({ params }: PageProps) {
           by {repoConfig.displayName}
           {metadata.author && ` • ${metadata.author}`}
           {metadata.version && ` • v${metadata.version}`}
-          {downloadCount > 0 && ` • ${formatCount(downloadCount)} installs`}
+          {` • ${formatCount(downloadCount)} downloads`}
         </p>
       </div>
 
