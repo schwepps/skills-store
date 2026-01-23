@@ -129,10 +129,12 @@ Add to `vercel.json`:
 
 ```json
 {
-  "crons": [{
-    "path": "/api/sync",
-    "schedule": "0 */6 * * *"
-  }]
+  "crons": [
+    {
+      "path": "/api/sync",
+      "schedule": "0 */6 * * *"
+    }
+  ]
 }
 ```
 
@@ -164,13 +166,13 @@ curl -X POST https://your-domain.com/api/sync \
 
 ## API Routes
 
-| Route | Method | Description |
-|-------|--------|-------------|
-| `/api/skills` | GET | Get all skills |
-| `/api/repos/[owner]/[repo]` | GET | Get skills from a specific repo |
-| `/api/categories` | GET | Get all categories with counts |
-| `/api/sync` | POST | Trigger GitHub → Supabase sync |
-| `/api/sync/status` | GET | Get sync status and stats |
+| Route                       | Method | Description                     |
+| --------------------------- | ------ | ------------------------------- |
+| `/api/skills`               | GET    | Get all skills                  |
+| `/api/repos/[owner]/[repo]` | GET    | Get skills from a specific repo |
+| `/api/categories`           | GET    | Get all categories with counts  |
+| `/api/sync`                 | POST   | Trigger GitHub → Supabase sync  |
+| `/api/sync/status`          | GET    | Get sync status and stats       |
 
 ## Adding a New Repository
 
@@ -222,24 +224,24 @@ Want to create your own Skills Store? Follow this checklist:
 
 Copy `.env.example` and update these values:
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_BASE_URL` | Your deployed URL (e.g., `https://my-skills.vercel.app`) |
-| `SKILL_REQUEST_REPO_OWNER` | Your GitHub username/org for skill requests |
-| `SKILL_REQUEST_REPO_NAME` | Your repository name for skill requests |
-| `GITHUB_TOKEN` | Your GitHub token with `public_repo` scope |
+| Variable                   | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `NEXT_PUBLIC_BASE_URL`     | Your deployed URL (e.g., `https://my-skills.vercel.app`) |
+| `SKILL_REQUEST_REPO_OWNER` | Your GitHub username/org for skill requests              |
+| `SKILL_REQUEST_REPO_NAME`  | Your repository name for skill requests                  |
+| `GITHUB_TOKEN`             | Your GitHub token with `public_repo` scope               |
 
 ### 2. Branding Updates
 
 Update these files with your brand:
 
-| File | What to Change |
-|------|----------------|
-| `src/app/layout.tsx` | Site title, description, OpenGraph metadata |
-| `src/app/page.tsx` | Hero heading and subheading text |
-| `src/app/manifest.ts` | PWA app name and description |
-| `src/components/layout/header.tsx` | Logo text and GitHub repo link |
-| `src/components/layout/footer.tsx` | Footer text |
+| File                               | What to Change                              |
+| ---------------------------------- | ------------------------------------------- |
+| `src/app/layout.tsx`               | Site title, description, OpenGraph metadata |
+| `src/app/page.tsx`                 | Hero heading and subheading text            |
+| `src/app/manifest.ts`              | PWA app name and description                |
+| `src/components/layout/header.tsx` | Logo text and GitHub repo link              |
+| `src/components/layout/footer.tsx` | Footer text                                 |
 
 ### 3. Database Setup
 
@@ -252,6 +254,64 @@ Deploy to Vercel and set your environment variables in the dashboard.
 ### 5. Add Your Repositories
 
 After deployment, use the **"Add Repository"** button in the UI to add your skill repositories. All repositories are stored in your Supabase database.
+
+## Troubleshooting
+
+### Common Issues
+
+#### Supabase Connection Failed
+
+- Verify `NEXT_PUBLIC_SUPABASE_URL` is correct in `.env.local`
+- Check that your API keys are properly set (either new format with `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+- Ensure your Supabase project is active in the dashboard
+
+#### GitHub Rate Limit Exceeded
+
+- Add a `GITHUB_TOKEN` to `.env.local` (increases limit from 60 to 5,000 requests/hour)
+- Token needs no special scopes for public repos
+- Create a token at: Settings > Developer settings > Personal access tokens
+
+#### Sync Endpoint Returns 401
+
+- Ensure `SYNC_SECRET` in `.env.local` matches the `Authorization: Bearer` header in your request
+- For Vercel Cron Jobs: Use `CRON_SECRET` which Vercel sets automatically
+- Check that you're using POST, not GET
+
+#### Skills Not Appearing After Sync
+
+- Run sync manually: `curl -X POST http://localhost:3000/api/sync`
+- Check the Supabase `skills` table for data
+- Verify the repository has valid `SKILL.md` files
+- Check browser console and server logs for errors
+
+#### Build or Type Errors
+
+```bash
+# Check TypeScript types
+pnpm type-check
+
+# Run linter
+pnpm lint
+
+# Clear Next.js cache and rebuild
+rm -rf .next && pnpm build
+```
+
+#### Tests Failing
+
+```bash
+# Run tests with verbose output
+pnpm test -- --reporter=verbose
+
+# Run specific test file
+pnpm test -- tests/lib/parser/frontmatter.test.ts
+```
+
+### Getting Help
+
+- Check existing [GitHub Issues](https://github.com/schwepps/skills-store/issues)
+- Open a new issue with reproduction steps
+- Include environment details (Node.js version, OS, browser)
 
 ## License
 
