@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: '%s | Skills Store',
   },
   description:
-    'Install superpowers into Claude in 3 clicks. No developer skills needed.',
+    'Install superpowers into Claude in 2 clicks. No developer skills needed.',
   keywords: [
     'Claude',
     'AI',
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   creator: 'Skills Store',
   openGraph: {
     title: 'Skills Store',
-    description: 'Install superpowers into Claude in 3 clicks.',
+    description: 'Install superpowers into Claude in 2 clicks.',
     type: 'website',
     locale: 'en_US',
     siteName: 'Skills Store',
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Skills Store',
-    description: 'Install superpowers into Claude in 3 clicks.',
+    description: 'Install superpowers into Claude in 2 clicks.',
     images: ['/images/og-image.png'],
   },
   icons: {

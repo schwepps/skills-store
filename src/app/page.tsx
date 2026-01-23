@@ -28,7 +28,7 @@ export default async function HomePage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Skills Store</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-2">
-          Install superpowers into Claude in 3 clicks.
+          Install superpowers into Claude in 2 clicks.
           <br />
           No developer skills needed.
         </p>
