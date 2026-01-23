@@ -17,7 +17,7 @@ const STEPS = [
     icon: Settings,
     title: '2. Install',
     description:
-      'Copy the zip file into your Claude capabilities.',
+      'Copy the zip file into your Claude Desktop > Settings > Capabilities.',
   },
 ];
 
