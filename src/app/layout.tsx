@@ -13,16 +13,8 @@ export const metadata: Metadata = {
     default: 'Skills Store - Install Claude Skills Easily',
     template: '%s | Skills Store',
   },
-  description:
-    'Install superpowers into Claude in 2 clicks. No developer skills needed.',
-  keywords: [
-    'Claude',
-    'AI',
-    'skills',
-    'Anthropic',
-    'productivity',
-    'automation',
-  ],
+  description: 'Install superpowers into Claude in 2 clicks. No developer skills needed.',
+  keywords: ['Claude', 'AI', 'skills', 'Anthropic', 'productivity', 'automation'],
   authors: [{ name: 'Skills Store' }],
   creator: 'Skills Store',
   openGraph: {
@@ -31,20 +23,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'Skills Store',
-    images: [
-      {
-        url: '/images/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Skills Store - Install Claude Skills Easily',
-      },
-    ],
+    // Images are generated dynamically via opengraph-image.tsx
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Skills Store',
     description: 'Install superpowers into Claude in 2 clicks.',
-    images: ['/images/og-image.png'],
+    // Images are generated dynamically via twitter-image.tsx
   },
   icons: {
     icon: '/images/logo.png',
@@ -56,17 +41,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className={inter.className}>
         <SkillsProvider>
           <SkipLink />
-          <div className="relative min-h-screen flex flex-col">
+          <div className="relative flex min-h-screen flex-col">
             <Header />
             <main id="main-content" className="flex-1" tabIndex={-1}>
               {children}

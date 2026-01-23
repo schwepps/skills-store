@@ -3,7 +3,7 @@
  */
 
 /** Production site URL */
-export const PRODUCTION_URL = 'https://skills-store.vercel.app';
+export const PRODUCTION_URL = 'https://skills-store-delta.vercel.app';
 
 /** Development site URL */
 export const DEVELOPMENT_URL = 'http://localhost:3000';
