@@ -1,13 +1,15 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Download, ExternalLink, Tag } from 'lucide-react';
+import { ArrowLeft, Download, ExternalLink, Tag, Terminal } from 'lucide-react';
 import { getSkillByName } from '@/lib/data';
 import { getRepoConfig } from '@/config/repos';
+import { formatCount } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkillUsageTriggers } from '@/components/skill/skill-usage-triggers';
 import { SkillExamples } from '@/components/skill/skill-examples';
+import { InstallCommand } from '@/components/skill/install-command';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -103,7 +105,7 @@ export default async function SkillPage({ params }: PageProps) {
     notFound();
   }
 
-  const { metadata, downloadUrl, githubUrl } = skillData;
+  const { metadata, downloadUrl, githubUrl, downloadCount } = skillData;
 
   return (
     <div className="container-narrow py-8 sm:py-12">
@@ -130,6 +132,7 @@ export default async function SkillPage({ params }: PageProps) {
           by {repoConfig.displayName}
           {metadata.author && ` • ${metadata.author}`}
           {metadata.version && ` • v${metadata.version}`}
+          {downloadCount > 0 && ` • ${formatCount(downloadCount)} installs`}
         </p>
       </div>
 
@@ -189,19 +192,30 @@ export default async function SkillPage({ params }: PageProps) {
       {/* Installation Instructions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Installation</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Terminal className="w-5 h-5" />
+            Installation
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
-            <li>Click &quot;Download&quot; above</li>
-            <li>Extract the downloaded ZIP file</li>
-            <li>
-              Copy the{' '}
-              <code className="bg-muted px-1 rounded">{skill}</code> folder into
-              your Claude capabilities (commands folder)
-            </li>
-            <li>Restart Claude if needed</li>
-          </ol>
+        <CardContent className="space-y-6">
+          {/* Primary: skills.sh command */}
+          <InstallCommand owner={owner} repo={repo} skillName={skill} />
+
+          {/* Alternative: Manual download */}
+          <div className="border-t pt-4">
+            <p className="text-sm font-medium mb-2">
+              Alternative: Manual Download
+            </p>
+            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+              <li>Click &quot;Download&quot; above</li>
+              <li>Extract the ZIP file</li>
+              <li>
+                Copy the{' '}
+                <code className="bg-muted px-1 rounded">{skill}</code> folder to
+                your Claude commands
+              </li>
+            </ol>
+          </div>
         </CardContent>
       </Card>
     </div>

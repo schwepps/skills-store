@@ -96,6 +96,10 @@ export interface Skill {
   repoDisplayName: string;
   /** Repository branch */
   branch: string;
+
+  // Stats
+  /** Installation count from skills.sh */
+  downloadCount: number;
 }
 
 /**

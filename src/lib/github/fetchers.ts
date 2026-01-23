@@ -131,6 +131,7 @@ function buildSkill(
     shortDescription: getShortDescription(metadata.description),
     repoDisplayName,
     branch,
+    downloadCount: 0, // Stats come from skills.sh, default to 0
   };
 }
 

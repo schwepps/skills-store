@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, formatCount } from '@/lib/utils';
+import { InstallCommand } from './install-command';
 import type { Skill } from '@/lib/types';
 
 interface SkillCardProps {
@@ -67,37 +68,53 @@ export function SkillCard({ skill, className }: SkillCardProps) {
           </p>
         </CardHeader>
 
-        <CardFooter className="pt-4 gap-2">
-          <Button
-            asChild
-            className="flex-1"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <a
-              href={skill.downloadUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Download ${skill.displayName}`}
+        <CardFooter className="pt-4 flex-col gap-3">
+          {/* Install command - compact */}
+          <InstallCommand
+            owner={skill.owner}
+            repo={skill.repo}
+            skillName={skill.skillName}
+            compact
+          />
+
+          {/* Action buttons */}
+          <div className="flex gap-2 w-full">
+            <Button
+              asChild
+              className="flex-1"
+              onClick={(e) => e.stopPropagation()}
             >
-              <Download className="w-4 h-4 mr-2" aria-hidden="true" />
-              Download
-            </a>
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            asChild
-            onClick={(e) => e.stopPropagation()}
-          >
-            <a
-              href={skill.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`View ${skill.displayName} on GitHub`}
+              <a
+                href={skill.downloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Download ${skill.displayName}`}
+              >
+                <Download className="w-4 h-4 mr-2" aria-hidden="true" />
+                Download
+                {skill.downloadCount > 0 && (
+                  <span className="ml-1.5 text-xs opacity-80">
+                    ({formatCount(skill.downloadCount)})
+                  </span>
+                )}
+              </a>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              asChild
+              onClick={(e) => e.stopPropagation()}
             >
-              <ExternalLink className="w-4 h-4" aria-hidden="true" />
-            </a>
-          </Button>
+              <a
+                href={skill.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`View ${skill.displayName} on GitHub`}
+              >
+                <ExternalLink className="w-4 h-4" aria-hidden="true" />
+              </a>
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </div>

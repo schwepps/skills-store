@@ -53,6 +53,7 @@ function transformDbSkillToSkill(
     shortDescription: dbSkill.short_description || '',
     repoDisplayName: repo.display_name || `${repo.owner}/${repo.repo}`,
     branch: repo.branch || 'main',
+    downloadCount: dbSkill.download_count || 0,
   };
 }
 

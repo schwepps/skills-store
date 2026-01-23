@@ -86,6 +86,7 @@ export interface Database {
           detail_url: string;
           raw_metadata: Record<string, unknown> | null;
           extended_content: SkillContent | null;
+          download_count: number;
           synced_at: string;
           created_at: string;
         };
@@ -106,6 +107,7 @@ export interface Database {
           detail_url: string;
           raw_metadata?: Record<string, unknown> | null;
           extended_content?: SkillContent | null;
+          download_count?: number;
           synced_at?: string;
           created_at?: string;
         };
@@ -126,6 +128,7 @@ export interface Database {
           detail_url?: string;
           raw_metadata?: Record<string, unknown> | null;
           extended_content?: SkillContent | null;
+          download_count?: number;
           synced_at?: string;
           created_at?: string;
         };
