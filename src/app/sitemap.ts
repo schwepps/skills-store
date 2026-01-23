@@ -1,10 +1,10 @@
 import { MetadataRoute } from 'next';
-import { registeredRepos } from '@/config/repos';
+import { getAllRepositories } from '@/lib/data/repositories';
 import { getAllSkills } from '@/lib/data';
+import { SITE_URL } from '@/lib/config/urls';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'https://skills-store.vercel.app';
+  const baseUrl = SITE_URL;
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
@@ -16,15 +16,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Repo pages
-  const repoPages: MetadataRoute.Sitemap = registeredRepos.map((repo) => ({
-    url: `${baseUrl}/repo/${repo.owner}/${repo.repo}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily',
-    priority: 0.8,
-  }));
+  // Repo pages from database
+  let repoPages: MetadataRoute.Sitemap = [];
+  try {
+    const repos = await getAllRepositories();
+    repoPages = repos.map((repo) => ({
+      url: `${baseUrl}/repo/${repo.owner}/${repo.repo}`,
+      lastModified: repo.updated_at ? new Date(repo.updated_at) : new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    }));
+  } catch (error) {
+    console.error('Error generating sitemap repos:', error);
+  }
 
-  // Skill pages
+  // Skill pages from database
   let skillPages: MetadataRoute.Sitemap = [];
   try {
     const skills = await getAllSkills();

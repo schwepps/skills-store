@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getRepoConfig } from '@/config/repos';
+import { getRepository } from '@/lib/data/repositories';
 import { buildDirectDownloadUrl } from '@/lib/github/urls';
 import { createAdminClient } from '@/lib/supabase/client';
 
@@ -29,32 +29,38 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   const [owner, repo, skill] = segments;
 
-  // Validate repo is registered
-  const repoConfig = getRepoConfig(owner, repo);
+  // Validate repo exists in database
+  const repository = await getRepository(owner, repo);
 
-  if (!repoConfig) {
+  if (!repository) {
     return NextResponse.json(
       {
-        error: 'Repository not registered',
-        message: `${owner}/${repo} is not in the skills store registry`,
+        error: 'Repository not found',
+        message: `${owner}/${repo} is not in the skills store`,
       },
       { status: 404 }
     );
   }
 
   // Increment download count (fire and forget - don't block redirect)
-  // Uses RPC function defined in migration 002_add_download_count.sql
+  // Type assertion needed: custom RPC function not in generated Supabase types
   const supabase = createAdminClient();
-  (supabase.rpc as Function)('increment_download_count', {
+  type RpcFn = (
+    name: string,
+    params: Record<string, string>
+  ) => Promise<{ error: Error | null }>;
+  (supabase.rpc as unknown as RpcFn)('increment_download_count', {
     p_owner: owner,
     p_repo: repo,
     p_skill_name: skill,
-  }).catch((error: Error) => {
-    console.error('Failed to increment download count:', error);
+  }).then(({ error }) => {
+    if (error) {
+      console.error('Failed to increment download count:', error);
+    }
   });
 
-  const branch = repoConfig.branch || 'main';
-  const skillsPath = repoConfig.config?.skillsPath || '';
+  const branch = repository.branch || 'main';
+  const skillsPath = repository.skills_path || '';
   const fullPath = skillsPath ? `${skillsPath}/${skill}` : skill;
   const downloadUrl = buildDirectDownloadUrl(owner, repo, fullPath, branch);
 

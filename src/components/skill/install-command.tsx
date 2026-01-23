@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Copy, Check, Clipboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { TIMING } from '@/lib/config/timing';
 
 interface InstallCommandProps {
   owner: string;
@@ -30,7 +31,7 @@ export function InstallCommand({
     try {
       await navigator.clipboard.writeText(command);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopied(false), TIMING.CLIPBOARD_FEEDBACK_MS);
     } catch (err) {
       console.error('Failed to copy:', err);
     }

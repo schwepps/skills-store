@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import {
   validateRepository,
-  parseGitHubUrl,
   type ValidationResult,
 } from '@/lib/validation/repo-validator';
 import { upsertRepository } from '@/lib/supabase/mutations';

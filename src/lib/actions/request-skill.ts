@@ -1,7 +1,12 @@
 'use server';
 
 import { z } from 'zod';
-import { SKILL_CATEGORIES } from '@/lib/constants/categories';
+import { SKILL_REQUEST_CATEGORIES } from '@/lib/categories';
+import { SITE_URL } from '@/lib/config/urls';
+import {
+  getSkillRequestRepoOwner,
+  getSkillRequestRepoName,
+} from '@/lib/config/skill-request';
 
 /**
  * Validation schema for skill request form
@@ -15,7 +20,7 @@ const SkillRequestSchema = z.object({
     .string()
     .min(20, 'Description must be at least 20 characters')
     .max(2000, 'Description must be less than 2000 characters'),
-  category: z.enum(SKILL_CATEGORIES),
+  category: z.enum(SKILL_REQUEST_CATEGORIES),
   examplePrompts: z.string().max(1000).optional(),
 });
 
@@ -34,11 +39,6 @@ export interface RequestSkillState {
   };
 }
 
-/**
- * Target repository for skill requests
- */
-const SKILLS_REPO_OWNER = 'schwepps';
-const SKILLS_REPO_NAME = 'skills';
 
 /**
  * Server Action to create a skill request as a GitHub issue
@@ -87,7 +87,7 @@ export async function requestSkillAction(
 
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${SKILLS_REPO_OWNER}/${SKILLS_REPO_NAME}/issues`,
+      `https://api.github.com/repos/${getSkillRequestRepoOwner()}/${getSkillRequestRepoName()}/issues`,
       {
         method: 'POST',
         headers: {
@@ -181,7 +181,7 @@ ${examplePrompts}
 
   body += `
 ---
-*Submitted via [Skills Store](https://skills-store.vercel.app)*`;
+*Submitted via [Skills Store](${SITE_URL})*`;
 
   return body;
 }

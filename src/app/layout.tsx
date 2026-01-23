@@ -2,14 +2,13 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Header, Footer, SkipLink } from '@/components/layout';
 import { SkillsProvider } from '@/lib/context/skills-context';
+import { SITE_URL } from '@/lib/config/urls';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  ),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'Skills Store - Install Claude Skills Easily',
     template: '%s | Skills Store',

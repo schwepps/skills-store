@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useActionState, useMemo, useEffect } from 'react';
+import { useState, useActionState, useMemo, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,7 @@ import {
   type SubmitRepoState,
 } from '@/lib/actions/submit-repo';
 import { cn } from '@/lib/utils';
+import { TIMING } from '@/lib/config/timing';
 import { SyncProgress, type SyncStep } from '@/components/sync/sync-progress';
 
 type DialogStep = 'input' | 'preview' | 'syncing' | 'success';
@@ -42,29 +43,39 @@ export function SubmitRepoDialog() {
   const skills = validation?.data?.skills || [];
   const validSkills = skills.filter((s) => s.valid);
 
-  // Simulate sync progress when submitting
+  // Track submission start time for step progression
+  const submissionStartRef = useRef<number | null>(null);
+
+  // Update submission start time when submitting begins
   useEffect(() => {
-    if (isSubmitting) {
-      setCurrentSyncStep('fetching');
-
-      // Simulate progression through sync steps
-      const timers = [
-        setTimeout(() => setCurrentSyncStep('parsing'), 800),
-        setTimeout(() => setCurrentSyncStep('saving'), 2000),
-      ];
-
-      return () => timers.forEach(clearTimeout);
+    if (isSubmitting && !submissionStartRef.current) {
+      submissionStartRef.current = Date.now();
+    } else if (!isSubmitting) {
+      submissionStartRef.current = null;
     }
   }, [isSubmitting]);
 
-  // Update sync step when submission completes
+  // Simulate sync progress with timer-based progression
   useEffect(() => {
-    if (submitState.status === 'success') {
-      setCurrentSyncStep('complete');
-    } else if (submitState.status === 'error') {
-      setCurrentSyncStep('error');
-    }
-  }, [submitState.status]);
+    if (!isSubmitting) return;
+
+    const timers = [
+      setTimeout(() => setCurrentSyncStep('parsing'), TIMING.STEP_TRANSITION_MS),
+      setTimeout(() => setCurrentSyncStep('saving'), TIMING.STEP_COMPLETION_MS),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  }, [isSubmitting]);
+
+  // Derive final sync step from submission result (runs after timers)
+  const derivedSyncStep = useMemo<SyncStep>(() => {
+    if (submitState.status === 'success') return 'complete';
+    if (submitState.status === 'error') return 'error';
+    return currentSyncStep;
+  }, [submitState.status, currentSyncStep]);
+
+  // Use derived step for display
+  const displaySyncStep = derivedSyncStep;
 
   // Derive step from state
   const step = useMemo<DialogStep>(() => {
@@ -99,7 +110,7 @@ export function SubmitRepoDialog() {
     setOpen(false);
     setUrl('');
     setCurrentSyncStep('fetching');
-    setTimeout(() => setOpen(true), 100);
+    setTimeout(() => setOpen(true), TIMING.DIALOG_REOPEN_DELAY_MS);
   };
 
   return (
@@ -258,7 +269,7 @@ export function SubmitRepoDialog() {
               status={submitState.status === 'error' ? 'error' : 'syncing'}
               skillsFound={validSkills.length}
               error={submitState.error}
-              currentStep={currentSyncStep}
+              currentStep={displaySyncStep}
             />
             {submitState.error && (
               <DialogFooter className="mt-4">

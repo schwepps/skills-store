@@ -126,7 +126,7 @@ export async function validateRepository(url: string): Promise<ValidationResult>
     if (parsed.branch === 'main' && repoData.default_branch !== 'main') {
       branch = repoData.default_branch;
     }
-  } catch (error) {
+  } catch {
     return {
       success: false,
       step: 'repo_exists',
@@ -138,7 +138,7 @@ export async function validateRepository(url: string): Promise<ValidationResult>
   let skillFolders: string[];
   try {
     skillFolders = await fetchSkillFolders(owner, repo, branch);
-  } catch (error) {
+  } catch {
     return {
       success: false,
       step: 'skills_found',

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSkillsByRepo } from '@/lib/data';
-import { getRepoConfig } from '@/config/repos';
+import { getRepository } from '@/lib/data/repositories';
 import { handleApiError } from '@/lib/api/errors';
-import type { RepoApiResponse } from '@/lib/types';
 
 // ISR: Revalidate every hour
 export const revalidate = 3600;
@@ -16,34 +15,32 @@ interface RouteParams {
 
 /**
  * GET /api/repos/[owner]/[repo]
- * Returns skills from a specific registered repository
+ * Returns skills from a specific repository
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { owner, repo } = await params;
 
-  // Find repo in registry
-  const repoConfig = getRepoConfig(owner, repo);
-
-  if (!repoConfig) {
-    return NextResponse.json(
-      {
-        error: 'Repository not registered',
-        message: `${owner}/${repo} is not in the skills store registry`,
-      },
-      { status: 404 }
-    );
-  }
-
   try {
+    // Find repo in database
+    const repository = await getRepository(owner, repo);
+
+    if (!repository) {
+      return NextResponse.json(
+        {
+          error: 'Repository not found',
+          message: `${owner}/${repo} is not in the skills store`,
+        },
+        { status: 404 }
+      );
+    }
+
     const skills = await getSkillsByRepo(owner, repo);
 
-    const response: RepoApiResponse = {
-      repo: repoConfig,
+    return NextResponse.json({
+      repo: repository,
       skills,
       count: skills.length,
-    };
-
-    return NextResponse.json(response);
+    });
   } catch (error) {
     return handleApiError(error);
   }

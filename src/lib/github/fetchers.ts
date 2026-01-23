@@ -208,42 +208,6 @@ export async function fetchRepoSkills(config: RepoConfig): Promise<Skill[]> {
   return skills;
 }
 
-/**
- * Fetch skills from all registered repositories
- * Uses parallel fetching for better performance
- */
-export async function fetchAllSkills(): Promise<Skill[]> {
-  const startTime = performance.now();
-  const { registeredRepos } = await import('@/config/repos');
-
-  console.log(`[Fetchers] Starting parallel fetch for ${registeredRepos.length} repos...`);
-
-  // Fetch all repos in parallel
-  const results = await Promise.allSettled(
-    registeredRepos.map((repoConfig) => fetchRepoSkills(repoConfig))
-  );
-
-  // Collect successful results and log errors
-  const allSkills: Skill[] = [];
-
-  results.forEach((result, index) => {
-    const config = registeredRepos[index];
-    if (result.status === 'fulfilled') {
-      allSkills.push(...result.value);
-    } else {
-      console.error(
-        `[Fetchers] Error fetching ${config.owner}/${config.repo}:`,
-        result.reason
-      );
-    }
-  });
-
-  const duration = Math.round(performance.now() - startTime);
-  console.log(`[Fetchers] Total: ${allSkills.length} skills from ${registeredRepos.length} repos in ${duration}ms`);
-
-  return allSkills;
-}
-
 // Helper functions
 function formatSkillName(folder: string): string {
   return folder

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Copy, Check, MessageSquare } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { TIMING } from '@/lib/config/timing';
 import type { ExamplePrompt } from '@/lib/types';
 
 interface SkillExamplesProps {
@@ -21,7 +22,7 @@ export function SkillExamples({ prompts }: SkillExamplesProps) {
     try {
       await navigator.clipboard.writeText(prompt);
       setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
+      setTimeout(() => setCopiedIndex(null), TIMING.CLIPBOARD_FEEDBACK_MS);
     } catch (err) {
       console.error('Failed to copy:', err);
     }

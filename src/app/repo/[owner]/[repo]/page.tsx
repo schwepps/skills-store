@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Star } from 'lucide-react';
 import { getSkillsByRepo } from '@/lib/data';
-import { getRepoConfig, registeredRepos } from '@/config/repos';
+import { getAllRepositories, getRepository } from '@/lib/data/repositories';
 import { SkillsFilterClient } from '@/components/skill/skills-filter-client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,9 +15,10 @@ interface PageProps {
   }>;
 }
 
-// Generate static params for all registered repos
+// Generate static params for all repos in database
 export async function generateStaticParams() {
-  return registeredRepos.map((repo) => ({
+  const repos = await getAllRepositories();
+  return repos.map((repo) => ({
     owner: repo.owner,
     repo: repo.repo,
   }));
@@ -28,15 +29,15 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { owner, repo } = await params;
-  const repoConfig = getRepoConfig(owner, repo);
+  const repository = await getRepository(owner, repo);
 
-  if (!repoConfig) {
+  if (!repository) {
     return { title: 'Repo not found' };
   }
 
   return {
-    title: `${repoConfig.displayName} - Skills Store`,
-    description: repoConfig.description,
+    title: `${repository.display_name || `${owner}/${repo}`} - Skills Store`,
+    description: repository.description || `Skills from ${owner}/${repo}`,
   };
 }
 
@@ -45,13 +46,24 @@ export const revalidate = 3600;
 
 export default async function RepoPage({ params }: PageProps) {
   const { owner, repo } = await params;
-  const repoConfig = getRepoConfig(owner, repo);
+  const repository = await getRepository(owner, repo);
 
-  if (!repoConfig) {
+  if (!repository) {
     notFound();
   }
 
   const skills = await getSkillsByRepo(owner, repo);
+  const displayName = repository.display_name || `${owner}/${repo}`;
+
+  // Transform repository to match expected format for SkillsFilterClient
+  const repoForFilter = {
+    owner: repository.owner,
+    repo: repository.repo,
+    displayName,
+    description: repository.description || '',
+    featured: repository.featured || false,
+    website: repository.website || undefined,
+  };
 
   return (
     <div className="container-page py-8 sm:py-12">
@@ -66,8 +78,8 @@ export default async function RepoPage({ params }: PageProps) {
       {/* Repo Header */}
       <div className="mb-8">
         <div className="flex items-start gap-4 flex-wrap">
-          <h1 className="text-3xl font-bold">{repoConfig.displayName}</h1>
-          {repoConfig.featured && (
+          <h1 className="text-3xl font-bold">{displayName}</h1>
+          {repository.featured && (
             <Badge className="gap-1">
               <Star className="w-3 h-3" />
               Featured
@@ -75,11 +87,11 @@ export default async function RepoPage({ params }: PageProps) {
           )}
         </div>
         <p className="text-lg text-muted-foreground mt-2">
-          {repoConfig.description}
+          {repository.description || `Skills from ${owner}/${repo}`}
         </p>
-        {repoConfig.website && (
+        {repository.website && (
           <a
-            href={repoConfig.website}
+            href={repository.website}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-primary hover:underline mt-2"
@@ -91,7 +103,7 @@ export default async function RepoPage({ params }: PageProps) {
       </div>
 
       {/* Skills with Filtering */}
-      <SkillsFilterClient skills={skills} repos={[repoConfig]} />
+      <SkillsFilterClient skills={skills} repos={[repoForFilter]} />
     </div>
   );
 }

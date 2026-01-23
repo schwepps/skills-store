@@ -2,8 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Download, ExternalLink, Tag, Terminal } from 'lucide-react';
 import { getSkillByName } from '@/lib/data';
-import { getRepoConfig } from '@/config/repos';
+import { getRepository } from '@/lib/data/repositories';
 import { formatCount } from '@/lib/utils';
+import { SITE_URL } from '@/lib/config/urls';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,9 +36,7 @@ export async function generateMetadata({
   }
 
   const { metadata, githubUrl, detailUrl, displayName } = skillData;
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'https://skills-store.vercel.app';
-  const canonicalUrl = `${baseUrl}${detailUrl}`;
+  const canonicalUrl = `${SITE_URL}${detailUrl}`;
 
   // Build keywords from tags + category
   const keywords = [
@@ -93,9 +92,9 @@ export const revalidate = 3600;
 
 export default async function SkillPage({ params }: PageProps) {
   const { owner, repo, skill } = await params;
-  const repoConfig = getRepoConfig(owner, repo);
+  const repository = await getRepository(owner, repo);
 
-  if (!repoConfig) {
+  if (!repository) {
     notFound();
   }
 
@@ -106,6 +105,7 @@ export default async function SkillPage({ params }: PageProps) {
   }
 
   const { metadata, downloadUrl, githubUrl, downloadCount } = skillData;
+  const repoDisplayName = repository.display_name || `${owner}/${repo}`;
 
   return (
     <div className="container-narrow py-8 sm:py-12">
@@ -129,7 +129,7 @@ export default async function SkillPage({ params }: PageProps) {
         <p className="text-lg text-muted-foreground">{metadata.description}</p>
 
         <p className="text-sm text-muted-foreground mt-2">
-          by {repoConfig.displayName}
+          by {repoDisplayName}
           {metadata.author && ` • ${metadata.author}`}
           {metadata.version && ` • v${metadata.version}`}
           {` • ${formatCount(downloadCount)} downloads`}

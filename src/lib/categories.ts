@@ -72,3 +72,18 @@ export function extractCategories(skills: Skill[]): Category[] {
 export function getAllCategoryIds(): string[] {
   return Object.keys(CATEGORY_CONFIG);
 }
+
+/**
+ * Available categories for skill requests
+ * Used in request-skill forms and actions
+ */
+export const SKILL_REQUEST_CATEGORIES = [
+  'Development',
+  'Productivity',
+  'Marketing',
+  'SEO',
+  'Writing',
+  'Other',
+] as const;
+
+export type SkillRequestCategory = (typeof SKILL_REQUEST_CATEGORIES)[number];

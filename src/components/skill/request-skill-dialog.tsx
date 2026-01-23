@@ -25,7 +25,7 @@ import {
   requestSkillAction,
   type RequestSkillState,
 } from '@/lib/actions/request-skill';
-import { SKILL_CATEGORIES } from '@/lib/constants/categories';
+import { SKILL_REQUEST_CATEGORIES } from '@/lib/categories';
 
 export function RequestSkillDialog() {
   const [open, setOpen] = useState(false);
@@ -125,7 +125,7 @@ export function RequestSkillDialog() {
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {SKILL_CATEGORIES.map((category) => (
+                  {SKILL_REQUEST_CATEGORIES.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>

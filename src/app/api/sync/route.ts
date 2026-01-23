@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { syncAllRepositories, syncSingleRepository } from '@/lib/sync/sync-service';
 import { isAdminConfigured } from '@/lib/config/features';
+import { logger } from '@/lib/utils/logger';
 
 // No caching for sync endpoint
 export const dynamic = 'force-dynamic';
@@ -24,13 +25,13 @@ function isAuthorized(request: NextRequest): boolean {
 
     // Check for Vercel cron secret (auto-set by Vercel)
     if (cronSecret && token === cronSecret) {
-      console.log('[Sync API] Authorized via CRON_SECRET');
+      logger.log('[Sync API] Authorized via CRON_SECRET');
       return true;
     }
 
     // Check for manual sync secret
     if (syncSecret && token === syncSecret) {
-      console.log('[Sync API] Authorized via SYNC_SECRET');
+      logger.log('[Sync API] Authorized via SYNC_SECRET');
       return true;
     }
   }
@@ -38,13 +39,13 @@ function isAuthorized(request: NextRequest): boolean {
   // Check X-Sync-Secret header (alternative for manual sync)
   const secretHeader = request.headers.get('X-Sync-Secret');
   if (syncSecret && secretHeader === syncSecret) {
-    console.log('[Sync API] Authorized via X-Sync-Secret header');
+    logger.log('[Sync API] Authorized via X-Sync-Secret header');
     return true;
   }
 
   // Allow in development mode if no secrets configured
   if (!syncSecret && !cronSecret && process.env.NODE_ENV === 'development') {
-    console.warn('[Sync API] No secrets configured - allowing request in dev mode');
+    logger.warn('[Sync API] No secrets configured - allowing request in dev mode');
     return true;
   }
 
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Full sync
-    console.log('[Sync API] Starting full sync...');
+    logger.log('[Sync API] Starting full sync...');
     const report = await syncAllRepositories();
 
     return NextResponse.json({
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
       report,
     });
   } catch (error) {
-    console.error('[Sync API] Error:', error);
+    logger.error('[Sync API] Error:', error);
 
     return NextResponse.json(
       {

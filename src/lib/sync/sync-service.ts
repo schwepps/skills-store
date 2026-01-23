@@ -1,5 +1,5 @@
-import { registeredRepos } from '@/config/repos';
 import { fetchRepoSkills } from '@/lib/github/fetchers';
+import { getAllRepositories, getRepository } from '@/lib/data/repositories';
 import {
   upsertRepository,
   upsertSkills,
@@ -7,8 +7,9 @@ import {
   updateSyncStatus,
   createSyncLog,
 } from '@/lib/supabase/mutations';
+import { logger } from '@/lib/utils/logger';
 import type { Skill, RepoConfig } from '@/lib/types';
-import type { DbSkillInsert } from '@/lib/supabase/types';
+import type { DbSkillInsert, Repository } from '@/lib/supabase/types';
 
 export interface SyncResult {
   owner: string;
@@ -31,6 +32,26 @@ export interface SyncReport {
     successfulRepos: number;
     failedRepos: number;
     totalSkillsProcessed: number;
+  };
+}
+
+/**
+ * Convert database Repository to RepoConfig for sync operations
+ */
+function repositoryToConfig(repo: Repository): RepoConfig {
+  return {
+    owner: repo.owner,
+    repo: repo.repo,
+    branch: repo.branch || 'main',
+    displayName: repo.display_name || `${repo.owner}/${repo.repo}`,
+    description: repo.description || `Skills from ${repo.owner}/${repo.repo}`,
+    website: repo.website || undefined,
+    featured: repo.featured || false,
+    config: {
+      skillsPath: repo.skills_path || undefined,
+      categoryOverrides: (repo.category_overrides as Record<string, string>) || undefined,
+      excludeFolders: repo.exclude_folders || undefined,
+    },
   };
 }
 
@@ -59,14 +80,12 @@ function transformSkillToDbSkill(skill: Skill): Omit<DbSkillInsert, 'repo_id'> {
 /**
  * Sync a single repository from GitHub to Supabase
  */
-async function syncRepository(
-  repoConfig: (typeof registeredRepos)[number]
-): Promise<SyncResult> {
+async function syncRepository(repoConfig: RepoConfig): Promise<SyncResult> {
   const startTime = performance.now();
   const { owner, repo } = repoConfig;
 
   try {
-    console.log(`[Sync] Starting sync for ${owner}/${repo}...`);
+    logger.log(`[Sync] Starting sync for ${owner}/${repo}...`);
 
     // 1. Upsert repository record
     const repoId = await upsertRepository({
@@ -87,20 +106,20 @@ async function syncRepository(
 
     // 3. Fetch skills from GitHub
     const skills = await fetchRepoSkills(repoConfig);
-    console.log(`[Sync] Fetched ${skills.length} skills from ${owner}/${repo}`);
+    logger.log(`[Sync] Fetched ${skills.length} skills from ${owner}/${repo}`);
 
     // 4. Transform skills to database format
     const dbSkills = skills.map(transformSkillToDbSkill);
 
     // 5. Upsert skills
     const upsertedCount = await upsertSkills(repoId, dbSkills);
-    console.log(`[Sync] Upserted ${upsertedCount} skills for ${owner}/${repo}`);
+    logger.log(`[Sync] Upserted ${upsertedCount} skills for ${owner}/${repo}`);
 
     // 6. Delete removed skills
     const currentSkillNames = skills.map((s) => s.skillName);
     const deletedCount = await deleteRemovedSkills(repoId, currentSkillNames);
     if (deletedCount > 0) {
-      console.log(`[Sync] Deleted ${deletedCount} removed skills from ${owner}/${repo}`);
+      logger.log(`[Sync] Deleted ${deletedCount} removed skills from ${owner}/${repo}`);
     }
 
     // 7. Update status to success
@@ -118,7 +137,7 @@ async function syncRepository(
       duration_ms: durationMs,
     });
 
-    console.log(`[Sync] Completed sync for ${owner}/${repo} in ${durationMs}ms`);
+    logger.log(`[Sync] Completed sync for ${owner}/${repo} in ${durationMs}ms`);
 
     return {
       owner,
@@ -133,7 +152,7 @@ async function syncRepository(
     const durationMs = Math.round(performance.now() - startTime);
     const errorMessage = error instanceof Error ? error.message : String(error);
 
-    console.error(`[Sync] Error syncing ${owner}/${repo}:`, errorMessage);
+    logger.error(`[Sync] Error syncing ${owner}/${repo}:`, errorMessage);
 
     // Try to update status and create log even on failure
     try {
@@ -150,7 +169,7 @@ async function syncRepository(
         duration_ms: durationMs,
       });
     } catch (logError) {
-      console.error(`[Sync] Failed to log error for ${owner}/${repo}:`, logError);
+      logger.error(`[Sync] Failed to log error for ${owner}/${repo}:`, logError);
     }
 
     return {
@@ -167,17 +186,21 @@ async function syncRepository(
 }
 
 /**
- * Sync all registered repositories from GitHub to Supabase
+ * Sync all repositories in the database from GitHub to Supabase
  */
 export async function syncAllRepositories(): Promise<SyncReport> {
   const startedAt = new Date().toISOString();
   const startTime = performance.now();
 
-  console.log(`[Sync] Starting full sync for ${registeredRepos.length} repositories...`);
+  // Fetch all repos from database
+  const repositories = await getAllRepositories();
 
-  // Sync repositories in parallel
+  logger.log(`[Sync] Starting full sync for ${repositories.length} repositories...`);
+
+  // Convert to configs and sync in parallel
+  const repoConfigs = repositories.map(repositoryToConfig);
   const results = await Promise.all(
-    registeredRepos.map((repoConfig) => syncRepository(repoConfig))
+    repoConfigs.map((config) => syncRepository(config))
   );
 
   const completedAt = new Date().toISOString();
@@ -192,7 +215,7 @@ export async function syncAllRepositories(): Promise<SyncReport> {
 
   console.log(
     `[Sync] Full sync completed in ${totalDurationMs}ms. ` +
-      `Success: ${successfulRepos}/${registeredRepos.length} repos, ` +
+      `Success: ${successfulRepos}/${repositories.length} repos, ` +
       `Skills processed: ${totalSkillsProcessed}`
   );
 
@@ -202,7 +225,7 @@ export async function syncAllRepositories(): Promise<SyncReport> {
     totalDurationMs,
     results,
     summary: {
-      totalRepos: registeredRepos.length,
+      totalRepos: repositories.length,
       successfulRepos,
       failedRepos,
       totalSkillsProcessed,
@@ -212,16 +235,15 @@ export async function syncAllRepositories(): Promise<SyncReport> {
 
 /**
  * Sync a single repository by owner/repo
+ * Fetches config from database
  */
 export async function syncSingleRepository(
   owner: string,
   repo: string
 ): Promise<SyncResult> {
-  const repoConfig = registeredRepos.find(
-    (r) => r.owner === owner && r.repo === repo
-  );
+  const repository = await getRepository(owner, repo);
 
-  if (!repoConfig) {
+  if (!repository) {
     return {
       owner,
       repo,
@@ -230,15 +252,15 @@ export async function syncSingleRepository(
       skillsUpdated: 0,
       skillsRemoved: 0,
       durationMs: 0,
-      error: `Repository ${owner}/${repo} not found in registered repos`,
+      error: `Repository ${owner}/${repo} not found in database`,
     };
   }
 
-  return syncRepository(repoConfig);
+  return syncRepository(repositoryToConfig(repository));
 }
 
 /**
- * Sync a dynamically added repository (not from static config)
+ * Sync a dynamically added repository (not yet in database)
  *
  * Used when users add repos via the URL submission form
  */

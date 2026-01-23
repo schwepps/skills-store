@@ -1,15 +1,13 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/config/urls';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL || 'https://skills-store.vercel.app';
-
   return {
     rules: {
       userAgent: '*',
       allow: '/',
       disallow: '/api/',
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

@@ -14,7 +14,7 @@ export default function Loading() {
       <div className="flex flex-col gap-4 mb-8">
         <div className="flex flex-col sm:flex-row gap-4">
           <Skeleton className="h-10 flex-1" />
-          <Skeleton className="h-10 w-[200px]" />
+          <Skeleton className="h-10 w-50" />
         </div>
         <div className="flex gap-2">
           {Array.from({ length: 5 }).map((_, i) => (

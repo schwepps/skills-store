@@ -1,6 +1,7 @@
 'use client';
 
 import * as Icons from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Category } from '@/lib/types';
@@ -12,7 +13,10 @@ interface CategoryFilterProps {
   className?: string;
 }
 
-// Dynamic icon component
+// Type for lucide-react icon names
+type IconName = keyof typeof Icons;
+
+// Dynamic icon component with proper typing
 function CategoryIcon({
   name,
   className,
@@ -20,8 +24,7 @@ function CategoryIcon({
   name: string;
   className?: string;
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const Icon = (Icons as any)[name];
+  const Icon = Icons[name as IconName] as LucideIcon | undefined;
   if (!Icon) return null;
   return <Icon className={className} aria-hidden="true" />;
 }

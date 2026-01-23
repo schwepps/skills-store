@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS skills (
   detail_url TEXT NOT NULL,
   raw_metadata JSONB,
   extended_content JSONB,  -- Extended content: usage triggers, example prompts, workflow phases
+  download_count INTEGER DEFAULT 0,  -- Download count tracked via API
   synced_at TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(repo_id, skill_name)
@@ -88,6 +89,9 @@ CREATE INDEX IF NOT EXISTS idx_repos_owner_repo ON repositories(owner, repo);
 
 -- Sync logs by repo and date
 CREATE INDEX IF NOT EXISTS idx_sync_logs_repo ON sync_logs(repo_id, created_at DESC);
+
+-- Popularity sorting by download count
+CREATE INDEX IF NOT EXISTS idx_skills_download_count ON skills(download_count DESC);
 
 -- ===========================================
 -- ROW LEVEL SECURITY (RLS)
@@ -148,20 +152,23 @@ CREATE TRIGGER update_repositories_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- ===========================================
--- SEED DATA (Optional - Initial Repositories)
--- ===========================================
-
--- Insert the two initial repos if they don't exist
-INSERT INTO repositories (owner, repo, display_name, description, featured, skills_path)
-VALUES
-  ('anthropics', 'skills', 'Anthropic Official Skills', 'Official Claude skills from Anthropic', true, 'skills'),
-  ('schwepps', 'skills', 'Schwepps Skills', 'Community skills collection', false, '')
-ON CONFLICT (owner, repo) DO UPDATE SET
-  display_name = EXCLUDED.display_name,
-  description = EXCLUDED.description,
-  featured = EXCLUDED.featured,
-  skills_path = EXCLUDED.skills_path;
+-- Atomic increment function for download tracking
+CREATE OR REPLACE FUNCTION increment_download_count(
+  p_owner TEXT,
+  p_repo TEXT,
+  p_skill_name TEXT
+)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  UPDATE skills
+  SET download_count = download_count + 1
+  WHERE owner = p_owner
+    AND repo = p_repo
+    AND skill_name = p_skill_name;
+END;
+$$;
 
 -- ===========================================
 -- VERIFICATION QUERIES

@@ -174,45 +174,14 @@ curl -X POST https://your-domain.com/api/sync \
 
 ## Adding a New Repository
 
-### Option 1: Via the UI (Recommended)
+All repositories are managed through the database and can be added via the UI:
 
 1. Click the **"Add Repository"** button in the header
 2. Paste the GitHub repository URL (e.g., `https://github.com/owner/repo`)
 3. Preview the discovered skills
 4. Click "Add" to sync the repository
 
-### Option 2: Via Configuration
-
-To permanently register a repository:
-
-1. Edit `src/config/repos.ts`
-2. Add a new entry to `registeredRepos`:
-
-```typescript
-{
-  owner: 'username',
-  repo: 'repo-name',
-  branch: 'main',
-  displayName: 'My Skills',
-  description: 'Collection of useful skills',
-  website: 'https://example.com',
-  featured: false,
-  config: {
-    skillsPath: 'skills',           // Path to skills folder
-    defaultCategory: 'productivity', // Default category
-    categoryOverrides: {            // Override categories for specific skills
-      'my-skill': 'development'
-    },
-    excludeFolders: ['_templates']  // Folders to exclude
-  }
-}
-```
-
-3. Run a sync to fetch the new skills:
-
-```bash
-curl -X POST http://localhost:3000/api/sync
-```
+The repository and its skills will be stored in your Supabase database. Use periodic sync to keep skills up to date.
 
 ## Project Structure
 
@@ -227,12 +196,11 @@ skills-store/
 │   │   ├── ui/               # shadcn/ui components
 │   │   ├── skill/            # Skill-related components
 │   │   └── layout/           # Layout components
-│   ├── lib/                   # Utilities and services
-│   │   ├── data/             # Data layer (Supabase queries)
-│   │   ├── github/           # GitHub API client (for sync)
-│   │   ├── supabase/         # Supabase client and queries
-│   │   └── sync/             # Sync service (GitHub → Supabase)
-│   └── config/               # Configuration files
+│   └── lib/                   # Utilities and services
+│       ├── data/             # Data layer (Supabase queries)
+│       ├── github/           # GitHub API client (for sync)
+│       ├── supabase/         # Supabase client and queries
+│       └── sync/             # Sync service (GitHub → Supabase)
 ├── supabase/
 │   └── migrations/           # Database migrations
 └── public/                   # Static assets
@@ -245,6 +213,45 @@ skills-store/
 3. Commit your changes: `git commit -m 'feat: add my feature'`
 4. Push to the branch: `git push origin feature/my-feature`
 5. Open a Pull Request
+
+## Forking This Project
+
+Want to create your own Skills Store? Follow this checklist:
+
+### 1. Environment Variables (`.env.local`)
+
+Copy `.env.example` and update these values:
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_BASE_URL` | Your deployed URL (e.g., `https://my-skills.vercel.app`) |
+| `SKILL_REQUEST_REPO_OWNER` | Your GitHub username/org for skill requests |
+| `SKILL_REQUEST_REPO_NAME` | Your repository name for skill requests |
+| `GITHUB_TOKEN` | Your GitHub token with `public_repo` scope |
+
+### 2. Branding Updates
+
+Update these files with your brand:
+
+| File | What to Change |
+|------|----------------|
+| `src/app/layout.tsx` | Site title, description, OpenGraph metadata |
+| `src/app/page.tsx` | Hero heading and subheading text |
+| `src/app/manifest.ts` | PWA app name and description |
+| `src/components/layout/header.tsx` | Logo text and GitHub repo link |
+| `src/components/layout/footer.tsx` | Footer text |
+
+### 3. Database Setup
+
+Run the migration in `supabase/migrations/001_initial_schema.sql` on your Supabase project.
+
+### 4. Deploy
+
+Deploy to Vercel and set your environment variables in the dashboard.
+
+### 5. Add Your Repositories
+
+After deployment, use the **"Add Repository"** button in the UI to add your skill repositories. All repositories are stored in your Supabase database.
 
 ## License
 
