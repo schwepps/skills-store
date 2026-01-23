@@ -88,7 +88,7 @@ export default async function Image() {
           gap: 16,
         }}
       >
-        {['No coding required', 'Open source', '100+ skills'].map((text) => (
+        {['No coding required', 'Open source', 'Just skills'].map((text) => (
           <div
             key={text}
             style={{
