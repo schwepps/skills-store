@@ -6,6 +6,9 @@ import { getAllRepositories, getRepository } from '@/lib/data/repositories';
 import { SkillsFilterClient } from '@/components/skill/skills-filter-client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { JsonLd } from '@/components/shared/json-ld';
+import { generateRepoBreadcrumbs } from '@/lib/schema';
+import { SITE_URL } from '@/lib/config/urls';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -24,10 +27,8 @@ export async function generateStaticParams() {
   }));
 }
 
-// Generate metadata
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+// Generate metadata with OG images and canonical URL
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { owner, repo } = await params;
   const repository = await getRepository(owner, repo);
 
@@ -35,9 +36,38 @@ export async function generateMetadata({
     return { title: 'Repo not found' };
   }
 
+  const displayName = repository.display_name || `${owner}/${repo}`;
+  const description =
+    repository.description || `Browse and install Claude AI skills from ${displayName}`;
+  const canonicalUrl = `${SITE_URL}/repo/${owner}/${repo}`;
+
   return {
-    title: `${repository.display_name || `${owner}/${repo}`} - Skills Store`,
-    description: repository.description || `Skills from ${owner}/${repo}`,
+    title: `${displayName} - Skills Store`,
+    description,
+    openGraph: {
+      title: `${displayName} - Claude AI Skills`,
+      description,
+      url: canonicalUrl,
+      type: 'website',
+      siteName: 'Skills Store',
+      images: [
+        {
+          url: '/images/og-image.png',
+          width: 1200,
+          height: 630,
+          alt: `${displayName} - Claude AI Skills Collection`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${displayName} - Claude AI Skills`,
+      description,
+      images: ['/images/og-image.png'],
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
   };
 }
 
@@ -65,28 +95,34 @@ export default async function RepoPage({ params }: PageProps) {
     website: repository.website || undefined,
   };
 
+  // Generate breadcrumb schema
+  const breadcrumbSchema = generateRepoBreadcrumbs(displayName);
+
   return (
     <div className="container-page py-8 sm:py-12">
+      {/* JSON-LD Structured Data */}
+      <JsonLd schema={breadcrumbSchema} />
+
       {/* Back link */}
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to store
         </Link>
       </Button>
 
       {/* Repo Header */}
       <div className="mb-8">
-        <div className="flex items-start gap-4 flex-wrap">
+        <div className="flex flex-wrap items-start gap-4">
           <h1 className="text-3xl font-bold">{displayName}</h1>
           {repository.featured && (
             <Badge className="gap-1">
-              <Star className="w-3 h-3" />
+              <Star className="h-3 w-3" />
               Featured
             </Badge>
           )}
         </div>
-        <p className="text-lg text-muted-foreground mt-2">
+        <p className="text-muted-foreground mt-2 text-lg">
           {repository.description || `Skills from ${owner}/${repo}`}
         </p>
         {repository.website && (
@@ -94,10 +130,10 @@ export default async function RepoPage({ params }: PageProps) {
             href={repository.website}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-primary hover:underline mt-2"
+            className="text-primary mt-2 inline-flex items-center gap-1 hover:underline"
           >
             View on GitHub
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="h-4 w-4" />
           </a>
         )}
       </div>

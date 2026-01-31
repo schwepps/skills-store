@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SkillUsageTriggers } from '@/components/skill/skill-usage-triggers';
 import { SkillExamples } from '@/components/skill/skill-examples';
 import { InstallCommand } from '@/components/skill/install-command';
+import { JsonLd } from '@/components/shared/json-ld';
+import { generateSoftwareApplicationSchema, generateSkillBreadcrumbs } from '@/lib/schema';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -22,9 +24,7 @@ interface PageProps {
 }
 
 // Generate dynamic metadata based on skill content
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { owner, repo, skill } = await params;
   const skillData = await getSkillByName(owner, repo, skill);
 
@@ -39,12 +39,9 @@ export async function generateMetadata({
   const canonicalUrl = `${SITE_URL}${detailUrl}`;
 
   // Build keywords from tags + category
-  const keywords = [
-    'Claude',
-    'AI skill',
-    metadata.category,
-    ...(metadata.tags || []),
-  ].filter(Boolean) as string[];
+  const keywords = ['Claude', 'AI skill', metadata.category, ...(metadata.tags || [])].filter(
+    Boolean
+  ) as string[];
 
   return {
     title: displayName,
@@ -104,49 +101,83 @@ export default async function SkillPage({ params }: PageProps) {
     notFound();
   }
 
-  const { metadata, downloadUrl, githubUrl, downloadCount } = skillData;
+  const { metadata, downloadUrl, githubUrl, downloadCount, detailUrl } = skillData;
   const repoDisplayName = repository.display_name || `${owner}/${repo}`;
+  const repoUrl = `/repo/${owner}/${repo}`;
+
+  // Generate JSON-LD schemas
+  const softwareSchema = generateSoftwareApplicationSchema({
+    name: metadata.name,
+    description: metadata.description,
+    url: detailUrl,
+    author: metadata.author,
+    version: metadata.version,
+    downloadCount,
+    tags: metadata.tags,
+    category: metadata.category,
+  });
+  const breadcrumbSchema = generateSkillBreadcrumbs(repoDisplayName, repoUrl, metadata.name);
 
   return (
     <div className="container-narrow py-8 sm:py-12">
+      {/* JSON-LD Structured Data */}
+      <JsonLd schema={[softwareSchema, breadcrumbSchema]} />
+
       {/* Back link */}
       <Button variant="ghost" asChild className="mb-6">
         <Link href="/">
-          <ArrowLeft className="w-4 h-4 mr-2" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Back to store
         </Link>
       </Button>
 
       {/* Skill Header */}
       <div className="mb-8">
-        <div className="flex items-start gap-4 flex-wrap mb-4">
+        <div className="mb-4 flex flex-wrap items-start gap-4">
           <h1 className="text-3xl font-bold">{metadata.name}</h1>
-          {metadata.category && (
-            <Badge variant="secondary">{metadata.category}</Badge>
-          )}
+          {metadata.category && <Badge variant="secondary">{metadata.category}</Badge>}
         </div>
 
-        <p className="text-lg text-muted-foreground">{metadata.description}</p>
-
-        <p className="text-sm text-muted-foreground mt-2">
-          by {repoDisplayName}
-          {metadata.author && ` • ${metadata.author}`}
-          {metadata.version && ` • v${metadata.version}`}
-          {` • ${formatCount(downloadCount)} downloads`}
+        <p className="text-muted-foreground text-lg" itemProp="description">
+          {metadata.description}
         </p>
+
+        {/* Semantic metadata for AI crawlers */}
+        <dl className="text-muted-foreground mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+          <div className="flex items-center gap-1">
+            <dt className="sr-only">Repository</dt>
+            <dd itemProp="isPartOf">by {repoDisplayName}</dd>
+          </div>
+          {metadata.author && (
+            <div className="flex items-center gap-1">
+              <dt className="sr-only">Author</dt>
+              <dd itemProp="author">• {metadata.author}</dd>
+            </div>
+          )}
+          {metadata.version && (
+            <div className="flex items-center gap-1">
+              <dt className="sr-only">Version</dt>
+              <dd itemProp="version">• v{metadata.version}</dd>
+            </div>
+          )}
+          <div className="flex items-center gap-1">
+            <dt className="sr-only">Downloads</dt>
+            <dd itemProp="interactionCount">• {formatCount(downloadCount)} downloads</dd>
+          </div>
+        </dl>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-4 mb-8">
+      <div className="mb-8 flex gap-4">
         <Button asChild size="lg">
           <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
-            <Download className="w-5 h-5 mr-2" />
+            <Download className="mr-2 h-5 w-5" />
             Download
           </a>
         </Button>
         <Button variant="outline" size="lg" asChild>
           <a href={githubUrl} target="_blank" rel="noopener noreferrer">
-            <ExternalLink className="w-5 h-5 mr-2" />
+            <ExternalLink className="mr-2 h-5 w-5" />
             View on GitHub
           </a>
         </Button>
@@ -156,8 +187,8 @@ export default async function SkillPage({ params }: PageProps) {
       {metadata.tags && metadata.tags.length > 0 && (
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Tag className="w-5 h-5" />
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Tag className="h-5 w-5" />
               Tags
             </CardTitle>
           </CardHeader>
@@ -174,26 +205,24 @@ export default async function SkillPage({ params }: PageProps) {
       )}
 
       {/* Usage Triggers */}
-      {metadata.content?.usageTriggers &&
-        metadata.content.usageTriggers.length > 0 && (
-          <div className="mb-8">
-            <SkillUsageTriggers triggers={metadata.content.usageTriggers} />
-          </div>
-        )}
+      {metadata.content?.usageTriggers && metadata.content.usageTriggers.length > 0 && (
+        <div className="mb-8">
+          <SkillUsageTriggers triggers={metadata.content.usageTriggers} />
+        </div>
+      )}
 
       {/* Example Prompts */}
-      {metadata.content?.examplePrompts &&
-        metadata.content.examplePrompts.length > 0 && (
-          <div className="mb-8">
-            <SkillExamples prompts={metadata.content.examplePrompts} />
-          </div>
-        )}
+      {metadata.content?.examplePrompts && metadata.content.examplePrompts.length > 0 && (
+        <div className="mb-8">
+          <SkillExamples prompts={metadata.content.examplePrompts} />
+        </div>
+      )}
 
       {/* Installation Instructions */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Terminal className="w-5 h-5" />
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Terminal className="h-5 w-5" />
             Installation
           </CardTitle>
         </CardHeader>
@@ -203,16 +232,13 @@ export default async function SkillPage({ params }: PageProps) {
 
           {/* Alternative: Manual download */}
           <div className="border-t pt-4">
-            <p className="text-sm font-medium mb-2">
-              Alternative: Manual Download
-            </p>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
+            <p className="mb-2 text-sm font-medium">Alternative: Manual Download</p>
+            <ol className="text-muted-foreground list-inside list-decimal space-y-1 text-sm">
               <li>Click &quot;Download&quot; above</li>
               <li>Extract the ZIP file</li>
               <li>
-                Copy the{' '}
-                <code className="bg-muted px-1 rounded">{skill}</code> folder to
-                your Claude commands
+                Copy the <code className="bg-muted rounded px-1">{skill}</code> folder to your
+                Claude commands
               </li>
             </ol>
           </div>

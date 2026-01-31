@@ -13,13 +13,25 @@ export const metadata: Metadata = {
     default: 'Skills Store - Install Claude Skills Easily',
     template: '%s | Skills Store',
   },
-  description: 'Install superpowers into Claude in 2 clicks. No developer skills needed.',
-  keywords: ['Claude', 'AI', 'skills', 'Anthropic', 'productivity', 'automation'],
+  description:
+    'Discover and install Claude AI skills in just a few clicks. Browse productivity tools, writing assistants, coding helpers, and more. No developer skills needed.',
+  keywords: [
+    'Claude',
+    'Claude AI',
+    'AI skills',
+    'Anthropic',
+    'productivity',
+    'automation',
+    'Claude extensions',
+    'AI tools',
+    'Claude commands',
+  ],
   authors: [{ name: 'Skills Store' }],
   creator: 'Skills Store',
   openGraph: {
-    title: 'Skills Store',
-    description: 'Install superpowers into Claude in 2 clicks.',
+    title: 'Skills Store - Claude AI Skills Marketplace',
+    description:
+      'Discover and install Claude AI skills in just a few clicks. Browse productivity tools, writing assistants, coding helpers, and more.',
     type: 'website',
     locale: 'en_US',
     siteName: 'Skills Store',
@@ -27,8 +39,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Skills Store',
-    description: 'Install superpowers into Claude in 2 clicks.',
+    title: 'Skills Store - Claude AI Skills Marketplace',
+    description:
+      'Discover and install Claude AI skills in just a few clicks. Browse productivity tools, writing assistants, and more.',
     // Images are generated dynamically via twitter-image.tsx
   },
   icons: {
