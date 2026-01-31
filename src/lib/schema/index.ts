@@ -13,6 +13,7 @@ export type {
   SoftwareApplicationSchema,
   BreadcrumbListSchema,
   ItemListSchema,
+  ServiceSchema,
 } from './types';
 
 // Schema generators

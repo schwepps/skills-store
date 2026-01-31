@@ -101,10 +101,30 @@ export interface ItemListElement {
   };
 }
 
+/** Service schema for service pages */
+export interface ServiceSchema extends JsonLdBase {
+  '@type': 'Service';
+  name: string;
+  description: string;
+  provider: {
+    '@type': 'Organization';
+    name: string;
+    url: string;
+  };
+  serviceType?: string;
+  areaServed?: string;
+  availableChannel?: {
+    '@type': 'ServiceChannel';
+    serviceUrl: string;
+    serviceType?: string;
+  };
+}
+
 /** Union type for all supported schemas */
 export type JsonLdSchema =
   | OrganizationSchema
   | WebSiteSchema
   | SoftwareApplicationSchema
   | BreadcrumbListSchema
-  | ItemListSchema;
+  | ItemListSchema
+  | ServiceSchema;

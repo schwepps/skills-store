@@ -1,7 +1,6 @@
-import { Heart, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
+import { Heart, Sparkles } from 'lucide-react';
 import { SyncStatus } from '@/components/sync/sync-status';
-
-const CUSTOM_SKILL_URL = 'https://github.com/schwepps/skills-store/discussions/1';
 
 export function Footer() {
   return (
@@ -15,15 +14,13 @@ export function Footer() {
             </p>
             <SyncStatus />
           </div>
-          <a
-            href={CUSTOM_SKILL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/custom"
             className="text-muted-foreground hover:text-foreground flex items-center gap-1.5 text-sm transition-colors"
           >
-            <MessageSquare className="h-4 w-4" aria-hidden="true" />
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
             Need a custom skill?
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
