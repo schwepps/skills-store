@@ -14,7 +14,7 @@ export function TelegramQRCode({ url, size = 120 }: TelegramQRCodeProps) {
         value={url}
         size={size}
         level="M"
-        includeMargin={false}
+        marginSize={0}
         bgColor="#ffffff"
         fgColor="#000000"
       />
