@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { JsonLd } from '@/components/shared/json-ld';
 import { SITE_URL } from '@/lib/config/urls';
 import { TelegramQRCode } from '@/components/custom/telegram-qr';
+import { SuggestSkillLink } from '@/components/custom/suggest-skill-link';
 import type { ServiceSchema } from '@/lib/schema';
 
 const TELEGRAM_URL = 'https://t.me/fschuers';
@@ -53,7 +54,7 @@ const benefits = [
   {
     icon: Clock,
     title: 'Guaranteed Delivery',
-    description: 'Your skill delivered within 1-2 weeks. No waiting in a community backlog.',
+    description: 'Your skill delivered within a few days. No waiting in a community backlog.',
   },
   {
     icon: Target,
@@ -94,7 +95,7 @@ const faqs = [
   {
     question: 'How long does it take?',
     answer:
-      'Most skills are delivered within 1-2 weeks. Complex skills may take longer - I will give you an accurate timeline after reviewing your requirements.',
+      'Most skills are delivered within a few days. Complex skills may take longer - I will give you an accurate timeline after reviewing your requirements.',
   },
   {
     question: 'Can I request revisions?',
@@ -223,11 +224,7 @@ export default function CustomPage() {
           <Link href="/" className="text-primary hover:underline">
             Browse free skills
           </Link>{' '}
-          or{' '}
-          <Link href="/" className="text-primary hover:underline">
-            suggest a skill
-          </Link>{' '}
-          for the community backlog.
+          or <SuggestSkillLink /> for the community backlog.
         </p>
       </div>
     </div>
